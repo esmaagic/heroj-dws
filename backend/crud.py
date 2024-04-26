@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from . import models, schemas
+import models, schemas
 
 # kao controllers u node.js
 
