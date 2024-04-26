@@ -1,3 +1,8 @@
+#pip install fastapi
+#pip install "uvicorn[standard]"
+#pip install pydantic
+#pip install sqlalchemy
+
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
