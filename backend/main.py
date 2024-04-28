@@ -2,30 +2,28 @@
 #pip install "uvicorn[standard]"
 #pip install pydantic
 #pip install sqlalchemy
+#pip install "python-jose[cryptography]"
+#pip install "passlib[bcrypt]"
 
-from fastapi import Depends, FastAPI, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
 
-import crud, models, schemas
-from database import SessionLocal, engine
+from routers import contents, users
+import models
+from database import engine 
 
+#creates the tables
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+app.include_router(contents.router)
+app.include_router(users.router)
 
 
 
-@app.get("/contents/", response_model=list[schemas.Content])
-def read_contents(db: Session = Depends(get_db)):
-    content = crud.get_contents (db)
-    return content
+@app.get("/")
+async def root():
+    return {"message": "Hello Bigger Applications!"}
+
 

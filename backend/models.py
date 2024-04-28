@@ -8,10 +8,10 @@ class Answer(Base):
     __tablename__ = "answers"
 
     id = Column(Integer, primary_key=True, index=True)
-    question = Column(String, nullable=False)
     question_id = Column(Integer, ForeignKey("questions.id", ondelete="CASCADE"), nullable=False)
     answer = Column(Text, nullable=False)
     status = Column(Boolean, nullable=False)
+   #created_at = Column(TIMESTAMP(timezone=True),nullable=False, server_default=text('now()'))
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -34,7 +34,7 @@ class Content(Base):
     id = Column(Integer, primary_key=True, index=True)
     type_id = Column(Integer, ForeignKey("content_types.id", ondelete="CASCADE"), nullable=False)
     title = Column(String, nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(Text, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
 
 class Post(Base):
@@ -74,4 +74,4 @@ class User(Base):
     lastname = Column(String, nullable=False)
     password = Column(String, nullable=False)
     email = Column(String, nullable=False)
-    role_id = Column(Integer, ForeignKey("roles.id", ondelete="CASCADE"), nullable=False)
+    role_id = Column(Integer, ForeignKey("roles.id", ondelete="CASCADE"), nullable=False, default=1)

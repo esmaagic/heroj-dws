@@ -4,13 +4,13 @@ class Role(BaseModel):
     id: int
     name: str
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserBase(BaseModel):
     name : str
     lastname : str
     email : str
-    role_id : int
+    role_id : int = 1
 
 
 class UserCreate(UserBase):
@@ -19,10 +19,9 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
-    is_active: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ContentBase(BaseModel):
@@ -33,4 +32,5 @@ class Content(ContentBase):
     type_id: int
     content: str
     class Config:
-        orm_mode = True
+        from_attributes = True
+
