@@ -22,6 +22,7 @@ response = client.chat.completions.create(
 
 response_dict = response.to_dict()
 response_json = json.dumps(response_dict, indent=4)
+
 """
 
 chat_log = []
@@ -40,3 +41,4 @@ while True:
     assistant_response = response.choices[0].message.content
     print("AI: ", assistant_response)
     chat_log.append({"role": "assistant", "content": assistant_response})
+
