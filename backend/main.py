@@ -13,7 +13,7 @@
 
 from fastapi import FastAPI
 
-from routers import contents, users, ai, quiz
+from routers import contents, auth, ai, quiz
 import models
 from database import engine 
 from fastapi.middleware.cors import CORSMiddleware
