@@ -10,7 +10,7 @@
 
 from fastapi import FastAPI
 
-from routers import contents, users, ai
+from routers import contents, auth, ai
 import models
 from database import engine 
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,7 +19,13 @@ from fastapi.middleware.cors import CORSMiddleware
 models.Base.metadata.create_all(bind=engine)
 
 
-app = FastAPI()
+
+
+app = FastAPI(
+    prefix = '/api',
+    tags =['api']
+)
+
 
 # Allow requests from frontend application's domain
 origins = [
@@ -35,7 +41,7 @@ app.add_middleware(
 )
 
 app.include_router(contents.router)
-app.include_router(users.router)
+app.include_router(auth.router)
 app.include_router(ai.router)
 
 
