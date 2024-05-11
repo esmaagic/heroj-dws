@@ -4,15 +4,6 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
-class Comment(Base):
-    __tablename__ = "comments"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
-    comment = Column(Text, nullable=False)
-    likes = Column(Integer, default=0)
-
 class ContentType(Base):
     __tablename__ = "content_types"
 
@@ -27,15 +18,6 @@ class Content(Base):
     title = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
-
-class Post(Base):
-    __tablename__ = "posts"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    title = Column(String, nullable=False)
-    likes = Column(Integer, default=0)
-    post = Column(Text, nullable=False)
 
 class Role(Base):
     __tablename__ = "roles"
@@ -84,3 +66,36 @@ class Answer(Base):
 
     question = relationship('Question', back_populates="answers")
  
+
+ #Sarah Hodzic
+ #Tables for Forum
+
+class Post(Base):
+    __tablename__ = "posts"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    title = Column(String, nullable=False)
+    likes = Column(Integer, default=0)
+    post = Column(Text, nullable=False)
+
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
+    comment = Column(Text, nullable=False)
+    likes = Column(Integer, default=0)
+
+class PostLike(Base):
+    __tablename__ = "post_likes"
+
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), primary_key=True)
+
+class CommentLike(Base):
+    __tablename__ = "comment_likes"
+
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    comment_id = Column(Integer, ForeignKey("comments.id", ondelete="CASCADE"), primary_key=True)
