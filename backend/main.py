@@ -17,7 +17,10 @@ from database import engine
 #creates the tables
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(
+    prefix = '/api',
+    tags =['api']
+)
 
 
 app.include_router(contents.router)
