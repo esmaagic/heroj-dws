@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 #Muhamed Aletic
 #Needed for late bainding
 from typing import ForwardRef
@@ -88,3 +88,48 @@ class Answer(AnswerBase):
 
     class Config:
         from_attributes = True
+
+
+#Sarah Hodzic
+#Schemas for creating and returning posts and comments on said posts
+
+class PostBase(BaseModel):
+    post:str
+    title: str
+
+class Post(PostBase):
+    id: int
+    user_id: int
+    likes: int
+    class Config:
+        from_attributes = True
+
+class PostCreate(BaseModel):
+    user_id: int
+    title: str = Field(..., description="Post title", min_length= 1)
+    post: str = Field(..., description="Post content", min_length= 1)
+
+#Likes
+
+class Like(BaseModel):
+    user_id: int
+    post_id: int
+    
+
+#Comments
+
+class CommentBase(BaseModel):
+    comment: str
+
+class Comment(CommentBase):
+    id: int
+    post_id: int
+    user_id: int
+    likes: int
+    class Config:
+        from_attribues = True
+
+class CommentCreate(BaseModel):
+    comment: str = Field(..., description="Comment ", min_length= 1)
+    user_id: int
+    post_id: int
