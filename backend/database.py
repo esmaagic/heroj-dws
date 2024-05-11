@@ -1,7 +1,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:password@localhost/db"
+
+# Muhamed Aletic
+# It is necessary to enter your own data to connect to the database.
+# Conncetion template
+# SQLALCHEMY_DATABASE_URL = "postgresql://postgres:password@localhost/db"
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres:root@localhost/heroj"
 
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
