@@ -15,8 +15,10 @@ const Chat = ({ onClose }: ChatProps) => {
 
   const handleSubmit = async () => {
     try {
+      /*
       const res = await axios.post('http://localhost:8000/first-aid/search', { query });
-      setResponse(res.data.response);
+      setResponse(res.data.response);*/
+      setResponse("hi");
     } catch (error) {
       console.error('Error:', error);
     }
@@ -42,7 +44,7 @@ const Chat = ({ onClose }: ChatProps) => {
       {response && (
         <div style={{ marginTop: '20px', padding: '10px', background: '#f0f0f0', borderRadius: '5px', maxHeight: '200px', overflow: 'auto' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Response:</div>
-          <div>style={response}</div>
+          <div>{response}</div>
         </div>
       )}
     </div>
