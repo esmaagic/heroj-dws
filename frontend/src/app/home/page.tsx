@@ -1,10 +1,10 @@
-import MyButton from '@/components/MyButton';
+import Button  from '../../components/MyButton';
 
 const HomePage = () => {
 
   return (
     <div>
-      <MyButton />
+      <Button />
     </div>
   );
 }

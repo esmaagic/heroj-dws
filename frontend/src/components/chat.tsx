@@ -7,12 +7,17 @@ import axios from 'axios';
 
 //Note to self: add automatic scroll and stream the response
 
+//handleSendMessage nam je prava funckcija koja salje zahtjeve na OPENAI, 
+//handleSendMessageTest nam je lazna funckija za testiranje, response je hardcoded
+//Da biste koristili prvu, promijenite onClick prop u TextFiledu
+
 interface ChatProps {
     setShowChat: Dispatch<SetStateAction<boolean>>;
 }
 
 
 export default function Chat({setShowChat}: ChatProps) {
+  
 
     // State to hold the chat messages
     const [messages, setMessages] = useState<string[]>([]);
@@ -20,7 +25,7 @@ export default function Chat({setShowChat}: ChatProps) {
     const [message, setMessage] = useState<string>('');
 
     // Function to handle sending a message
-    const handleSendMessage = async () => {
+    /*const handleSendMessage = async () => {
       
       if (message.trim()) {
           // Adding the user's message to the chat
@@ -57,11 +62,34 @@ export default function Chat({setShowChat}: ChatProps) {
 
         }
       }
-    };
+    };*/
 
     const handleCloseChat = () => {
         setShowChat(false);
-    }     
+    }  
+    
+    const handleSendMessageTest = () => {
+      
+      if (message.trim()) {
+        // Adding the user's message to the chat
+      setMessages([...messages, `User: ${message}`]);
+
+      // Clearing the input field
+      setMessage('');
+
+      try {
+        
+        const res = "HI";
+        setMessages((prevMessages) => [...prevMessages, `AI: ${res}`]);
+
+      } catch (error) {
+
+        console.error('Error:', error);
+        setMessages((prevMessages) => [...prevMessages, 'AI: Error fetching response.']);
+
+      }
+      }
+    };
 
     return (
 
@@ -95,7 +123,7 @@ export default function Chat({setShowChat}: ChatProps) {
                     <InputAdornment position="end">
                       <IconButton 
                         color="primary" 
-                        onClick={handleSendMessage}
+                        onClick={handleSendMessageTest}
                       >
                         <SendIcon />
                       </IconButton>
@@ -109,7 +137,7 @@ export default function Chat({setShowChat}: ChatProps) {
 
       </Container>
     );
-}
+};
 
 
 const styles = {
