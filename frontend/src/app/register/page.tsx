@@ -54,11 +54,17 @@ const Register: React.FC = () => {
             border: '2px ', 
             borderColor: 'grey.500',
             borderRadius: 2,
-            mt: 1, maxWidth: 500, mx: 'auto', }}
+            mt: 5, maxWidth: 500, mx: 'auto', }}
       >
-        <Typography variant="h5" component="h1" gutterBottom>
-          Register
-        </Typography>
+        <Box sx={{ paddingX: 0, display:'flex', justifyContent:'space-between'}}>
+          <Typography variant="h5" component="h1" gutterBottom>
+            Register
+          </Typography>
+
+          <Link href="/">
+            <Button sx={{color:'secondary.main'}}>Home</Button>
+          </Link>
+        </Box>
         <TextField
           fullWidth
           margin="normal"
@@ -113,12 +119,14 @@ const Register: React.FC = () => {
         >
           Register
         </Button>
+        
         <Typography variant="body2" align="center" sx={{ mt: 2 }}>
         Already registered?{' '}
         <Link href="/login">
           <Button variant="text">Login</Button>
         </Link>
       </Typography>
+      
       </Box>
 
   );

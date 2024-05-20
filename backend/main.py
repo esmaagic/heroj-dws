@@ -24,10 +24,7 @@ models.Base.metadata.create_all(bind=engine)
 
 
 
-app = FastAPI(
-    prefix = '/api',
-    tags =['api']
-)
+app = FastAPI()
 
 
 # Allow requests from frontend application's domain
