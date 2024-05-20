@@ -6,4 +6,4 @@ from database import get_db
 import models
 
 
-router = APIRouter()
+router = APIRouter(tags =['users'])

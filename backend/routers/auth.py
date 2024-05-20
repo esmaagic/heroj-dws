@@ -98,7 +98,6 @@ async def get_current_active_user(
 @router.post("/token")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],) -> Token:
-
     user = authenticate_user(next(get_db()), form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -106,6 +105,7 @@ async def login_for_access_token(
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    print("radi ovdje")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
@@ -138,7 +138,7 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if get_user(db, user.email):
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    new_user = models.User(name= user.name, lastname= user.lastname, email=user.email, password = hashed_pass)
+    new_user = models.User(name= user.name, lastname= user.lastname, email=user.email,role_id= user.role_id, password = hashed_pass)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)

@@ -9,7 +9,7 @@ from database import get_db
 
 
 
-router = APIRouter()
+router = APIRouter(tags =['quiz'])
 
 # Find quiz by id
 @router.get("/find-quiz/{quiz_id}")

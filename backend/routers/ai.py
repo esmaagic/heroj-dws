@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
 # NADAM  se da je ovo dovoljno komentara Esmaaa 
-router = APIRouter()
+router = APIRoutertags =['ai']
 
 # Loading environment variables from .env file
 load_dotenv()
