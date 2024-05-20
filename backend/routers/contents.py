@@ -6,7 +6,7 @@ from database import get_db
 import models
 from routers.auth import get_current_user
 
-router = APIRouter()
+router = APIRouter(tags =['contents'])
 
 
 

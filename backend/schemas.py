@@ -13,7 +13,7 @@ class UserBase(BaseModel):
     name : str
     lastname : str
     email : str
-    role_id : int = 1
+    role_id : int 
 
 
 class UserCreate(UserBase):

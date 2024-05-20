@@ -33,7 +33,7 @@ class User(Base):
     lastname = Column(String, nullable=False)
     password = Column(String, nullable=False)
     email = Column(String, nullable=False)
-    role_id = Column(Integer, ForeignKey("roles.id", ondelete="CASCADE"), nullable=False, default=1)
+    role_id = Column(Integer, ForeignKey("roles.id", ondelete="CASCADE"), nullable=False)
 
 #Muhamed Aletic
 #Table needed for quiz realisation

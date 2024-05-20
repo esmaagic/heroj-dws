@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 import models
 
-router = APIRouter()
+router = APIRouter(tags =['forum'])
 
 #get all posts
 @router.get("/posts/", response_model=list[schemas.Post])

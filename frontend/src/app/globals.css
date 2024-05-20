@@ -13,7 +13,8 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
+  /*  color: rgb(var(--foreground-rgb));*/
+  color: black;
   padding: 1rem;
 }
 
