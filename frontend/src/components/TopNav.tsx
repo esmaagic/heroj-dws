@@ -18,6 +18,7 @@ import LocalHospitalTwoToneIcon from '@mui/icons-material/LocalHospitalTwoTone';
 import SearchIcon from '@mui/icons-material/Search';
 import { usePathname } from 'next/navigation'
 import MyButton2 from './MyButton2';
+import ChatDiolog from './ChatDialog';
 import { useEffect, useState } from 'react';
 import { getCurrentUser, User } from '@/services/getCurrentUser';
 import LogoutButton from './LogoutButton';
@@ -86,7 +87,7 @@ export default function NavBar() {
         </Box>
   
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <MyButton2/>
+          <ChatDiolog/>
             {/* <Button
               key="quick-search"
               sx={{ my: 2, color: 'white', display: 'flex', marginRight: '10px', backgroundColor: 'secondary.main' }}
