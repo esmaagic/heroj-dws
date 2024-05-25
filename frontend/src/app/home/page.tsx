@@ -1,10 +1,10 @@
-import Button  from '../../components/MyButton';
-
 const HomePage = () => {
 
   return (
     <div>
-      <Button />
+      {/* <Button /> */}
+
+
     </div>
   );
 }

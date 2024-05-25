@@ -29,14 +29,31 @@ class User(UserBase):
 
 class ContentBase(BaseModel):
     title: str
+    content: str
+
+class ContentCreate(ContentBase):
+    pass
 
 class Content(ContentBase):
     id: int
-    type_id: int
-    content: str
+    user_id: int
     class Config:
         from_attributes = True
 
+class MediaBase(BaseModel):
+    name: str
+    media_type: str
+    media_url: str
+    content_id: int
+
+class MediaCreate(MediaBase):
+    pass
+
+class Media(MediaBase):
+    id: int
+    
+    class Config:
+        orm_mode = True
 
 #Muhamed Aletic
 #Schemas for creating and reading quizzes, including questions and answers.

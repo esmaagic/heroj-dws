@@ -3,21 +3,27 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
+#obrisi content_type 
 
-class ContentType(Base):
-    __tablename__ = "content_types"
+class Media(Base):
+    __tablename__ = "media"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
+    content_id = Column(Integer, ForeignKey('contents.id'))
+    media_type = Column(String)  # 'image' or 'video'
+    media_url = Column(String)
+    content = relationship('Content', back_populates='media')
 
 class Content(Base):
     __tablename__ = "contents"
 
     id = Column(Integer, primary_key=True, index=True)
-    type_id = Column(Integer, ForeignKey("content_types.id", ondelete="CASCADE"), nullable=False)
     title = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    user = relationship('User')
+    media = relationship('Media', back_populates='content', cascade="all, delete-orphan")
 
 class Role(Base):
     __tablename__ = "roles"
