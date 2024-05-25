@@ -1,17 +1,18 @@
-"use client"
-import * as React from 'react';
-import TopNav from '../components/TopNav'
-import BottomNav from '../components/BottomNav'
+'use client'
 
-export default function NavBar() {
-  
+
+
+export default function Home() {
 
   return (
     <>
-    
-
     </>
-  /*   <>
+  
+    
+  );
+}
+
+/*   <>
    
 
 <AppBar position="static" >
@@ -97,6 +98,3 @@ export default function NavBar() {
       </BottomNavigation>
     </Paper>
     </> */
-    
-  );
-}
