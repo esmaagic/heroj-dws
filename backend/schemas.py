@@ -47,6 +47,7 @@ class QuizBase(BaseModel):
 
 class QuizCreate(QuizBase):
     owner_id: int
+    category_id: int
 
 
 question_ref = ForwardRef("Question")
@@ -57,6 +58,20 @@ class Quiz(QuizBase):
 
     class Config:
         from_attributes = True
+
+#QuizCategory
+class QuizCategoryBase(BaseModel):
+    category_title: str
+
+class QuizCategoryCreate(QuizCategoryBase):
+    pass
+
+class QuizCategory(QuizCategoryBase):
+    category_id: int
+    category_title: str
+    class Config:
+        from_attributes = True
+
 
 #Question
 class QuestionBase(BaseModel):
