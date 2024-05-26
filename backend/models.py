@@ -46,8 +46,18 @@ class Quiz(Base):
     quiz_id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    category_id = Column(Integer, ForeignKey("category.category_id", ondelete="CASCADE"), nullable=False) 
     
     questions = relationship("Question", back_populates="quiz")
+    category = relationship("Category", back_populates="quizzes")
+
+class Category(Base):
+    __tablename__ = "category"
+
+    category_id = Column(Integer, primary_key=True, index=True)
+    category_title = Column(Text, nullable=False )
+
+    quizzes = relationship("Quiz", back_populates="category")
 
 class Question(Base):
     __tablename__ = "questions"
@@ -69,6 +79,9 @@ class Answer(Base):
 
     question = relationship('Question', back_populates="answers")
  
+
+
+
 
  #Sarah Hodzic
  #Tables for Forum

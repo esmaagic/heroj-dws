@@ -11,8 +11,20 @@ from database import get_db
 
 router = APIRouter(tags =['quiz'])
 
-# Find quiz by id
-@router.get("/find-quiz/{quiz_id}")
+
+#Muhamed Aletic
+#My work after internship
+
+# Get all quizzes from database
+@router.get("/quizzes")
+async def get_quizzes(db: Session = Depends(get_db)):
+    
+    quizzes = db.query(models.Quiz).all()
+    return quizzes
+
+
+# Find quiz by id   
+@router.get("/quiz/find-quiz/{quiz_id}")
 async def find_quiz(quiz_id: int, db: Session = Depends(get_db)):
     quiz = db.query(models.Quiz).filter(models.Quiz.quiz_id == quiz_id).options(joinedload(models.Quiz.questions)).first()
     if not quiz:
@@ -48,3 +60,19 @@ async def create_answer(answer: schemas.AnswerCreate, db: Session = Depends(get_
     db.commit()
     db.refresh(db_answer)
     return db_answer
+
+# Route for creating a category
+@router.post("/quiz/create-category")
+def create_category(category: schemas.QuizCategoryCreate, db: Session = Depends(get_db)):
+    db_category = models.Category(**category.dict())
+    db.add(db_category)
+    db.commit()
+    db.refresh(db_category)
+    return db_category
+
+# Get all quizzes category from database
+@router.get("/quiz/categories")
+async def get_quiz_categories(db: Session = Depends(get_db)):
+    
+    db_quiz_catgeories = db.query(models.Category).all()
+    return db_quiz_catgeories
