@@ -1,7 +1,8 @@
+from datetime import datetime
 from pydantic import BaseModel, Field
 #Muhamed Aletic
 #Needed for late bainding
-from typing import ForwardRef
+from typing import ForwardRef, Optional
 
 class Role(BaseModel):
     id: int
@@ -101,6 +102,8 @@ class Post(PostBase):
     id: int
     user_id: int
     likes: int
+    created_at: datetime
+    users: Optional[UserBase]
     class Config:
         from_attributes = True
 
@@ -126,6 +129,8 @@ class Comment(CommentBase):
     post_id: int
     user_id: int
     likes: int
+    created_at: datetime
+    users: Optional[UserBase]
     class Config:
         from_attribues = True
 

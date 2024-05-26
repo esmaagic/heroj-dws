@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -34,6 +34,9 @@ class User(Base):
     password = Column(String, nullable=False)
     email = Column(String, nullable=False)
     role_id = Column(Integer, ForeignKey("roles.id", ondelete="CASCADE"), nullable=False)
+
+    posts = relationship("Post", back_populates="users")
+    comments = relationship("Comment", back_populates="users")
 
 #Muhamed Aletic
 #Table needed for quiz realisation
@@ -76,8 +79,11 @@ class Post(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     title = Column(String, nullable=False)
-    likes = Column(Integer, default=0)
+    likes = Column(Integer, nullable=False, default=0)
     post = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=func.now())
+
+    users = relationship("User", back_populates="posts")
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -87,6 +93,9 @@ class Comment(Base):
     post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
     comment = Column(Text, nullable=False)
     likes = Column(Integer, default=0)
+    created_at = Column(DateTime, default=func.now())
+
+    users = relationship("User", back_populates="comments")
 
 class PostLike(Base):
     __tablename__ = "post_likes"
