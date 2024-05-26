@@ -31,7 +31,7 @@ export default function App() {
         },
       });
       localStorage.setItem('token', response.data.access_token);
-      router.push('/profile');
+      router.push('/');
     } catch (error) {
       setLoginError('Invalid email or password');
     }
@@ -54,11 +54,18 @@ export default function App() {
         border: '2px ', 
         borderColor: 'grey.500',
         borderRadius: 2,
-        mt: 1, maxWidth: 500, mx: 'auto', }}
+        mt: 5, maxWidth: 500, mx: 'auto', }}
     >
-      <Typography variant="h5" component="h1" gutterBottom>
-        Login
-      </Typography>
+      
+      <Box sx={{ paddingX: 0, display:'flex', justifyContent:'space-between'}}>
+          <Typography variant="h5" component="h1" gutterBottom>
+            Login
+          </Typography>
+
+          <Link href="/">
+            <Button sx={{color:'secondary.main'}}>Home</Button>
+          </Link>
+        </Box>
       {loginError && <Typography color="error">{loginError}</Typography>}
       <TextField
         fullWidth

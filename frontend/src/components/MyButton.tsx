@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Button from '@mui/material/Button';
-import Chat from './chat';
+import Chat from './Text&ImgChat';
 
 export default function MyButton() {
 

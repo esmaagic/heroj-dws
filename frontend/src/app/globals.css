@@ -16,6 +16,8 @@ body {
   /*  color: rgb(var(--foreground-rgb));*/
   color: black;
   padding: 1rem;
+  margin: 0;
+  padding: 0;
 }
 
 @layer utilities {

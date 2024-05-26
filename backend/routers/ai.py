@@ -1,11 +1,11 @@
 from openai import OpenAI
 from dotenv import load_dotenv
-import os
-from fastapi import APIRouter, Depends, HTTPException, status
+import os, requests, base64
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from pydantic import BaseModel
 
 # NADAM  se da je ovo dovoljno komentara Esmaaa 
-router = APIRouter(tags=['ai'])
+router = APIRouter(tags =['ai'])
 
 # Loading environment variables from .env file
 load_dotenv()
@@ -18,6 +18,47 @@ client = OpenAI(api_key=api_key)
 
 class SearchQuery(BaseModel):
     query: str
+
+
+
+@router.post("/analyze-image/")
+async def analyze_image(file: UploadFile = File(...)):
+    contents = await file.read()
+    base64_image = base64.b64encode(contents).decode('utf-8')
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+
+    payload = {
+        "model": "gpt-4o",
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "What disease is in the picture?"
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{base64_image}"
+                        }
+                    }
+                ]
+            }
+        ],
+        "max_tokens": 200
+    }
+
+    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+    if response.status_code == 200:
+        return response.json()["choices"][0]["message"]["content"]
+    else:
+        raise HTTPException(status_code=response.status_code, detail="Image analysis failed")
+
 
 
 chat_log = [] 
