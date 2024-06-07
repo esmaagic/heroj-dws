@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from datetime import datetime
 #Muhamed Aletic
 #Needed for late bainding
 from typing import ForwardRef
@@ -26,34 +27,57 @@ class User(UserBase):
     class Config:
         from_attributes = True
 
+#----------content start
 
-class ContentBase(BaseModel):
-    title: str
-    content: str
-
-class ContentCreate(ContentBase):
-    pass
-
-class Content(ContentBase):
-    id: int
-    user_id: int
-    class Config:
-        from_attributes = True
 
 class MediaBase(BaseModel):
     name: str
-    media_type: str
     media_url: str
-    content_id: int
+    section_id: int
 
 class MediaCreate(MediaBase):
     pass
 
 class Media(MediaBase):
     id: int
-    
+
     class Config:
         orm_mode = True
+
+class SectionBase(BaseModel):
+    title: str = None
+    content: str = None
+
+class SectionCreate(SectionBase):
+    pass
+
+class Section(SectionBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+class ContentBase(BaseModel):
+    title: str
+    user_id: int
+
+class ContentCreate(ContentBase):
+    sections: list[SectionCreate] = []
+
+class Content(ContentBase):
+    id: int
+    created_at: datetime
+    sections: list[Section] = []
+
+    class Config:
+        orm_mode = True
+
+
+
+#------content end----------------
+
+
+
 
 #Muhamed Aletic
 #Schemas for creating and reading quizzes, including questions and answers.

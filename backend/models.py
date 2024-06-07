@@ -1,5 +1,6 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text,DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -7,23 +8,32 @@ Base = declarative_base()
 
 class Media(Base):
     __tablename__ = "media"
-
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    content_id = Column(Integer, ForeignKey('contents.id'))
-    media_type = Column(String)  # 'image' or 'video'
+    section_id = Column(Integer, ForeignKey('sections.id'))
     media_url = Column(String)
-    content = relationship('Content', back_populates='media')
+    section = relationship('Section', back_populates='media')
+
+
+class Section(Base):
+    __tablename__ = "sections"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+    paragraph = Column(Text)
+    content_id = Column(Integer, ForeignKey('contents.id'))
+    media = relationship('Media', back_populates='section', cascade="all, delete-orphan")
+    content = relationship('Content', back_populates='sections')
 
 class Content(Base):
     __tablename__ = "contents"
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
-    content = Column(Text, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     user = relationship('User')
-    media = relationship('Media', back_populates='content', cascade="all, delete-orphan")
+    sections = relationship('Section', back_populates='content', cascade="all, delete-orphan")
 
 class Role(Base):
     __tablename__ = "roles"
@@ -40,6 +50,8 @@ class User(Base):
     password = Column(String, nullable=False)
     email = Column(String, nullable=False)
     role_id = Column(Integer, ForeignKey("roles.id", ondelete="CASCADE"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
 
 #Muhamed Aletic
 #Table needed for quiz realisation
