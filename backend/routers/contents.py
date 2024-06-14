@@ -10,8 +10,11 @@ import crud.contents as crud
 from uuid import uuid4
 
 router = APIRouter(tags =['contents'])
-UPLOAD_DIR = "uploads"
 
+
+UPLOAD_DIR = os.path.join("..", "frontend", "public")
+
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
 """ 
@@ -22,7 +25,7 @@ ako nije logovan dobit cete odgovarajuci error response
 pogledaj dummy rutu
 """
 
-@router.get("/contents/{content_id}")
+@router.get("/contents/{content_id}", response_model=schemas.Content)
 def read_post(content_id: int, db: Session = Depends(get_db)):
     content = db.query(models.Content).filter(models.Content.id == content_id).first()
     if not content:
@@ -34,11 +37,17 @@ def read_post(content_id: int, db: Session = Depends(get_db)):
 @router.get("/contents/")
 def read_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     posts = crud.get_posts(db, skip=skip, limit=limit)
+
     return posts
 
 @router.post("/contents/", response_model=schemas.Content)
 def create_post(post: schemas.ContentCreate, db: Session = Depends(get_db)):
     return crud.create_post(db=db, post=post)
+
+
+@router.post("/section/", response_model=schemas.Section)
+def create_section(content_id: int, section: schemas.SectionCreate, db: Session = Depends(get_db)):
+    return crud.create_section(db=db, section=section, content_id = content_id)
 
 
 

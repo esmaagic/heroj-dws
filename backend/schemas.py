@@ -53,6 +53,7 @@ class SectionCreate(SectionBase):
 
 class Section(SectionBase):
     id: int
+    media: Media
 
     class Config:
         orm_mode = True
@@ -62,12 +63,11 @@ class ContentBase(BaseModel):
     user_id: int
 
 class ContentCreate(ContentBase):
-    sections: list[SectionCreate] = []
+    pass
 
 class Content(ContentBase):
     id: int
     created_at: datetime
-    sections: list[Section] = []
 
     class Config:
         orm_mode = True

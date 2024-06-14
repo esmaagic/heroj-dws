@@ -12,7 +12,6 @@ class Media(Base):
     name = Column(String, nullable=False)
     section_id = Column(Integer, ForeignKey('sections.id'))
     media_url = Column(String)
-    section = relationship('Section', back_populates='media')
 
 
 class Section(Base):
@@ -22,7 +21,7 @@ class Section(Base):
     title = Column(String)
     paragraph = Column(Text)
     content_id = Column(Integer, ForeignKey('contents.id'))
-    media = relationship('Media', back_populates='section', cascade="all, delete-orphan")
+    media = relationship('Media', back_populates='sections')
     content = relationship('Content', back_populates='sections')
 
 class Content(Base):
@@ -33,7 +32,7 @@ class Content(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     user = relationship('User')
-    sections = relationship('Section', back_populates='content', cascade="all, delete-orphan")
+    sections = relationship('Section', back_populates='contents', cascade="all, delete-orphan")
 
 class Role(Base):
     __tablename__ = "roles"
