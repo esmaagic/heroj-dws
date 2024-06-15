@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
+
 #Muhamed Aletic
 #Needed for late bainding
 from typing import ForwardRef, Optional
@@ -73,7 +74,7 @@ class QuizCategory(QuizCategoryBase):
         from_attributes = True
 
 
-#Question
+""" #Question
 class QuestionBase(BaseModel):
     question: str
 
@@ -103,8 +104,83 @@ class Answer(AnswerBase):
     status: bool
 
     class Config:
+        from_attributes = True """
+
+# Chat.gpt schemas for question and answer needed for update.
+class AnswerBase(BaseModel):
+    answer: str
+
+class AnswerCreate(AnswerBase):
+    status: bool
+    question_id: int = None
+
+class QuestionBase(BaseModel):
+    question: str
+
+class QuestionCreate(QuestionBase):
+    quiz_id: int
+
+class Question(QuestionBase):
+    question_id: int
+    quiz_id: int
+    answers: list[AnswerBase] = []
+
+    class Config:
         from_attributes = True
 
+class Answer(AnswerBase):
+    answer_id: int
+    question_id: int
+    status: bool
+
+    class Config:
+        from_attributes = True
+
+# Update schema for question and answers
+class AnswerUpdate(BaseModel):
+    answer_id: int
+    answer: str
+    status: bool
+
+class QuestionUpdate(BaseModel):
+    question_id: int
+    question: str
+    answers: list[AnswerUpdate]
+
+#Question and answer create together.
+class QuestionAndAnswerCreate(QuestionBase):
+    quiz_id: int
+    question: str
+    answers: list[AnswerCreate]
+
+#Create quiz, questions and answers together.
+class QuestionCreateAll(BaseModel):
+    question: str
+    answers: list[AnswerCreate]
+
+class QuizCreateAll(BaseModel):
+    owner_id: int
+    category_id: int
+    title: str
+    questions: list[QuestionCreateAll]
+
+#Quiz results
+class QuizResultBase(BaseModel):
+    user_id: int
+    quiz_id: int
+    title: str
+    date: datetime
+    correct_answers: int
+    number_of_questions: int
+
+class QuizResultCreate(QuizResultBase):
+    pass
+
+class QuizResult(QuizResultBase):
+    result_id: int
+
+    class Config:
+        from_attributes = True
 
 #Sarah Hodzic
 #Schemas for creating and returning posts and comments on said posts
