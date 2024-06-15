@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -38,6 +38,9 @@ class User(Base):
     posts = relationship("Post", back_populates="users")
     comments = relationship("Comment", back_populates="users")
 
+    # Muhamed Aletic
+    quiz_results = relationship('QuizResult', back_populates='user')
+
 #Muhamed Aletic
 #Table needed for quiz realisation
 class Quiz(Base):
@@ -50,6 +53,7 @@ class Quiz(Base):
     
     questions = relationship("Question", back_populates="quiz")
     category = relationship("Category", back_populates="quizzes")
+    quiz_results = relationship('QuizResult', back_populates='quiz')
 
 class Category(Base):
     __tablename__ = "category"
@@ -80,8 +84,18 @@ class Answer(Base):
     question = relationship('Question', back_populates="answers")
  
 
+class QuizResult(Base):
+    __tablename__ = 'quiz_results'
+    result_id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    quiz_id = Column(Integer, ForeignKey('quizes.quiz_id', ondelete="CASCADE"), nullable=False)
+    title = Column(String, nullable=False)
+    date = Column(Date, nullable=False)
+    correct_answers = Column(Integer, nullable=False)
+    number_of_questions = Column(Integer, nullable=False)
 
-
+    user = relationship('User', back_populates='quiz_results')
+    quiz = relationship('Quiz', back_populates='quiz_results')
 
  #Sarah Hodzic
  #Tables for Forum

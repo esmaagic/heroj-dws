@@ -1,28 +1,30 @@
-
 import { Box, Button, Container, Grid } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
-
-const categories = ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Ostalo', 'Category 1'];
 type Category = {
   category_id: number;
   category_title: string;
 };
 
-const QuizCategory = () => {
+interface QuizCategoryProps {
+  onCategorySelect: (category: number | null) => void;
+}
+
+const QuizCategory: React.FC<QuizCategoryProps> = ({ onCategorySelect }) => {
 
   const [categories, setCategories] = useState<Category[]>([]);
 
-  // Iz baze dobavljamo listu kategorija koje zelimo da prikazemo na stranici.
+  // We are fetching a list of categories from the database that we want to display on the page.
   useEffect(() => {
     async function getAllQuizCategoriesFromDatabase() {
       try {
         const response = await axios.get('http://localhost:8000/quiz/categories');
         setCategories(response.data);
+        console.log("Kategorije kvizova")
         console.log(response.data)
       } catch (error) {
-        console.error('Greška prilikom dobavljanja kategorija kvizova:', error);
+        console.error('Error fetching quiz categories:', error);
       }
     }
 
@@ -40,9 +42,14 @@ const QuizCategory = () => {
         }}
       >
         <Grid container spacing={2} justifyContent="center">
+          <Grid item>
+            <Button onClick={() => onCategorySelect(null)} variant="contained">All</Button>
+          </Grid>
           {categories.map((category, index) => (
             <Grid item key={index}>
-              <Button variant="contained">{category.category_title}</Button>
+              <Button onClick={() => onCategorySelect(category.category_id)} variant="contained">{category.category_title}
+
+              </Button>
             </Grid>
           ))}
         </Grid>

@@ -42,7 +42,7 @@ export default function NavBar() {
             >
               <BottomNavigationAction href='/' label="Pocetna" value="home" icon={<HomeIcon />} />
               <BottomNavigationAction href='/quiz' label="Kviz" value="quiz" icon={<QuizIcon />} />
-              <BottomNavigationAction label="Forum" value="forum" icon={<ForumIcon />} />
+              <BottomNavigationAction href='/forum' label="Forum" value="forum" icon={<ForumIcon />} />
               <BottomNavigationAction label="Racun" value="account" icon={<AccountCircleIcon />} />
               <BottomNavigationAction label="Map" value="map" icon={<MapIcon />} onClick={handleMapClick} />
             </BottomNavigation>

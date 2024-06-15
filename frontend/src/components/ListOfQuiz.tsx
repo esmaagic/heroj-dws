@@ -4,55 +4,85 @@ import { Box, Button, Card, CardContent, Container, Grid, Typography } from '@mu
 import axios from 'axios';
 import { useRouter } from 'next/navigation'
 
-
-// Testni podaci za prikazivanje vise kvizova. Sluzi za testiranje button-a "LOAD MORE"
-const mockQuizzes = [
-  { id: 1, title: 'Quiz 1', description: 'Description of Quiz 1' },
-];
-
-// Definisemo tip "Quiz" u kojem definisemo tipove za svaki atribut kviza.
-type Quiz = {
+interface Quiz {
   quiz_id: string;
   owner_id: string;
   title: string;
+  category_id: number;
 };
 
-const ListOfQuiz = () => {
-  const router = useRouter()
-  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+interface CurrentUser {
+  name: string,
+  lastname: string,
+  email: string,
+  role_id: number,
+  id: number,
+}
 
-  // Iz baze dobavljamo listu kvizova koje zelimo da prikazemo na stranici.
+interface ListOfQuizProps {
+  selectedCategory: number | null;
+  searchQuery: string;
+}
+
+const ListOfQuiz: React.FC<ListOfQuizProps> = ({ selectedCategory, searchQuery  }) => {
+  const router = useRouter()
+
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [userData, setUserData] = useState<CurrentUser | null>(null);
+  const [visibleQuizzes, setVisibleQuizzes] = useState(8);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8000/auth/users/me/', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setUserData(response.data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+    fetchData()
+  }, [])
+
+
+  // We are fetching a list of quizzes from the database that we want to display on the page.
   useEffect(() => {
     async function getAllQuizzesFromDatabase() {
       try {
-        const response = await axios.get('http://localhost:8000/quizzes/');
+        if(userData?.id){
+          const response = await axios.get(`http://localhost:8000/quiz/quizzes/${userData?.id}`);
         setQuizzes(response.data);
-        console.log(response.data)
+        }
+        
       } catch (error) {
-        console.error('Greška prilikom dobavljanja kvizova:', error);
+        console.error('Error fetching quizzes:', error);
       }
     }
-
     getAllQuizzesFromDatabase();
-  }, []);
+  }, [userData]);
 
-  const [visibleQuizzes, setVisibleQuizzes] = useState(8);
+  // Filtering quizzes by categories and filtering quizzes when using the search bar.
+  const filteredQuizzes = quizzes.filter(quiz => {
+    const matchesCategory = selectedCategory ? quiz.category_id === selectedCategory : true;
+    const matchesSearch = quiz.title.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   const loadMore = () => {
     setVisibleQuizzes((prev) => prev + 8);
   };
 
-  const handleQuizClick = (quizId: string) => {
-    router.push(`/quiz/${quizId}`);
-  }
-
   return (
     <Container maxWidth="lg">
       <Grid container spacing={4} sx={{ marginTop: 4 }}>
-        {quizzes.slice(0, visibleQuizzes).map((quiz, index) => (
+        {filteredQuizzes.slice(0, visibleQuizzes).map((quiz, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
 
-            <Card onClick={() => handleQuizClick(quiz.quiz_id)} style={{ cursor: 'pointer' }}>
+            <Card onClick={() => router.push(`/quiz/${quiz.quiz_id}`)} style={{ cursor: 'pointer' }}>
               <CardContent>
                 <Typography variant="h6">Quiz {index + 1}</Typography>
                 <Typography variant="body2" color="textSecondary">
@@ -69,7 +99,7 @@ const ListOfQuiz = () => {
           variant="contained"
           color="primary"
           onClick={loadMore}
-          disabled={visibleQuizzes >= mockQuizzes.length}
+          disabled={visibleQuizzes >= quizzes.length}
         >
           Load More
         </Button>
