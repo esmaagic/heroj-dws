@@ -48,7 +48,7 @@ const MapContainer = () => {
   const fetchHospitals = async (lat: number, lng: number) => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/nearest-hospitals?lat=${lat}&lng=${lng}`
+        `http://localhost:8000/nearest-hospitals/${lat}/${lng}`
       );
       const data: { results: Hospital[] } = response.data;
       setHospitals(data.results);

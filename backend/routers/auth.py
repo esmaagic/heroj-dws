@@ -24,7 +24,7 @@ router = APIRouter(
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 120
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -106,6 +106,13 @@ async def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    if not user.active:
+        raise HTTPException(
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+            detail="User not confirmed",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
@@ -137,9 +144,25 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     hashed_pass = get_password_hash(user.password)
     if get_user(db, user.email):
         raise HTTPException(status_code=400, detail="Email already registered")
-    
-    new_user = models.User(name= user.name, lastname= user.lastname, email=user.email,role_id= user.role_id, password = hashed_pass)
+    is_active = False if user.role_id == 2 else True
+    new_user = models.User(name= user.name, lastname= user.lastname, email=user.email,role_id= user.role_id, password = hashed_pass, active = is_active)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     return  new_user
+
+
+@router.post("/activate_user/{user_id}")
+async def activate_user(user_id: int, db: Session = Depends(get_db)):
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    
+    user.active = True
+    db.commit()
+    db.refresh(user)
+    return user
