@@ -1,4 +1,6 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text,DateTime
+
+from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text, func
+
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
@@ -55,6 +57,12 @@ class User(Base):
     contents = relationship('Content', back_populates='users')
 
 
+    posts = relationship("Post", back_populates="users")
+    comments = relationship("Comment", back_populates="users")
+
+    # Muhamed Aletic
+    quiz_results = relationship('QuizResult', back_populates='user')
+
 #Muhamed Aletic
 #Table needed for quiz realisation
 class Quiz(Base):
@@ -63,8 +71,19 @@ class Quiz(Base):
     quiz_id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    category_id = Column(Integer, ForeignKey("category.category_id", ondelete="CASCADE"), nullable=False) 
     
     questions = relationship("Question", back_populates="quiz")
+    category = relationship("Category", back_populates="quizzes")
+    quiz_results = relationship('QuizResult', back_populates='quiz')
+
+class Category(Base):
+    __tablename__ = "category"
+
+    category_id = Column(Integer, primary_key=True, index=True)
+    category_title = Column(Text, nullable=False )
+
+    quizzes = relationship("Quiz", back_populates="category")
 
 class Question(Base):
     __tablename__ = "questions"
@@ -87,6 +106,19 @@ class Answer(Base):
     question = relationship('Question', back_populates="answers")
  
 
+class QuizResult(Base):
+    __tablename__ = 'quiz_results'
+    result_id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    quiz_id = Column(Integer, ForeignKey('quizes.quiz_id', ondelete="CASCADE"), nullable=False)
+    title = Column(String, nullable=False)
+    date = Column(Date, nullable=False)
+    correct_answers = Column(Integer, nullable=False)
+    number_of_questions = Column(Integer, nullable=False)
+
+    user = relationship('User', back_populates='quiz_results')
+    quiz = relationship('Quiz', back_populates='quiz_results')
+
  #Sarah Hodzic
  #Tables for Forum
 
@@ -96,8 +128,11 @@ class Post(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     title = Column(String, nullable=False)
-    likes = Column(Integer, default=0)
+    likes = Column(Integer, nullable=False, default=0)
     post = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=func.now())
+
+    users = relationship("User", back_populates="posts")
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -107,6 +142,9 @@ class Comment(Base):
     post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
     comment = Column(Text, nullable=False)
     likes = Column(Integer, default=0)
+    created_at = Column(DateTime, default=func.now())
+
+    users = relationship("User", back_populates="comments")
 
 class PostLike(Base):
     __tablename__ = "post_likes"

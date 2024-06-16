@@ -9,7 +9,7 @@
 #pip install python-dotenv
 
 # Muhamed Aletic
-# Shortcut for installing all required packages in FastAPI project -> pip install pydantic sqlalchemy "python-jose[cryptography]" "passlib[bcrypt]" openai python-dotenv psycopg2
+# Shortcut for installing all required packages in FastAPI project -> pip install pydantic sqlalchemy "python-jose[cryptography]" "passlib[bcrypt]" openai python-dotenv psycopg2 requests
 
 from fastapi import FastAPI
 

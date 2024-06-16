@@ -30,7 +30,6 @@ export default function App() {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
       });
-
       localStorage.setItem('token', response.data.access_token);
       router.push('/home');
     } catch (error) {

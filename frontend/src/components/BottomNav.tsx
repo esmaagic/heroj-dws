@@ -59,9 +59,12 @@ export default function NavBar() {
                 setValue(newValue);
               }}
             >
+
               <BottomNavigationAction href='/home' label="Pocetna" value="home" icon={<HomeIcon />} />
-              <BottomNavigationAction label="Kviz" value="quiz" icon={<QuizIcon />} />
-              <BottomNavigationAction label="Forum" value="forum" icon={<ForumIcon />} />
+              <BottomNavigationAction href='/' label="Pocetna" value="home" icon={<HomeIcon />} />
+              <BottomNavigationAction href='/quiz' label="Kviz" value="quiz" icon={<QuizIcon />} />
+              <BottomNavigationAction href='/forum' label="Forum" value="forum" icon={<ForumIcon />} />
+
               <BottomNavigationAction label="Map" value="map" icon={<MapIcon />} onClick={handleMapClick} />
    
               {user?.role_id == 3  && (
