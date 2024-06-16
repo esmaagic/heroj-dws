@@ -7,10 +7,9 @@ UPLOAD_DIR = os.path.join("..", "frontend", "public")
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-def get_posts(db: Session, skip: int = 0, limit: int = 100):
+""" def get_posts(db: Session, skip: int = 0, limit: int = 100):
     posts = db.query(models.Content).options(
-        joinedload(models.Content.user),  # Eager load the user details
-        joinedload(models.Content.sections).joinedload(models.Section.media) # Eager load one media for each section
+        joinedload(models.Content.users),  # Eager load the user details
     ).offset(skip).limit(limit).all()
 
     post_data = []
@@ -32,7 +31,6 @@ def get_posts(db: Session, skip: int = 0, limit: int = 100):
             "created_at": post.created_at,
             "media_url": media_url
         })
-
     return post_data
 
 
@@ -53,71 +51,9 @@ def get_post_by_id(db: Session, post_id: int):
 
     return post 
 
-
-""" 
-def create_post(db: Session, post: schemas.ContentCreate):
-    db_post = models.Content(title=post.title, user_id=post.user_id)
-    db.add(db_post)
-    db.commit()
-    db.refresh(db_post)
-    for section in post.sections:
-        db_section = models.Section(
-            title=section.title,
-            paragraph=section.content,
-            content_id=db_post.id
-        )
-        print(db_section)
-        db.add(db_section)
-        db.commit()
-        db.refresh(db_section)
-
-        
-        db_media = models.Media(
-            name=section.media.name,
-            media_url=section.media.media_url,
-            section_id=db_section.id
-        )
-        db.add(db_media)
-        db.commit()
-        db.refresh(db_media)
-    return db_post
-
  """
 
 
-""" 
-def create_media(db: Session, section_id: int, media_url: str, name: str):
-    db_media = models.Media(section_id=section_id, media_url=media_url, name=name)
-    db.add(db_media)
-    db.commit()
-    db.refresh(db_media)
-    return db_media """
-
-
-def create_post(db: Session, post: schemas.ContentCreate):
-    try:
-        db_post = models.Content(title=post.title, user_id=post.user_id)
-        db.add(db_post)
-        db.commit()
-        db.refresh(db_post)
-        return db_post
-    except Exception as e:
-        db.rollback()
-        raise e
-
-def create_section(db: Session, content_id: int, section: schemas.SectionCreate):
-    try:
-        db_section = models.Section(
-            title=section.title,
-            paragraph=section.content,
-            content_id=content_id
-        )
-        db.add(db_section)
-        db.commit()
-        db.refresh(db_section)
-    except Exception as e:
-        db.rollback()
-        raise e
 
 
 def create_media(db: Session, section_id: int, media_url: str, name: str):
@@ -127,6 +63,35 @@ def create_media(db: Session, section_id: int, media_url: str, name: str):
         db.commit()
         db.refresh(db_media)
         return db_media
+    except Exception as e:
+        db.rollback()
+        raise e
+
+ 
+def create_section(db: Session, section: schemas.SectionCreate):
+    try:
+        db_section = models.Section(
+            title=section.title,
+            paragraph=section.paragraph,
+            content_id=section.content_id
+        )
+        db.add(db_section)
+        db.commit()
+        db.refresh(db_section)
+        return db_section
+    except Exception as e:
+        db.rollback()
+        raise e
+    
+
+def create_post(db: Session, post: schemas.ContentCreate):
+    try:
+        db_post = models.Content(title=post.title, user_id=post.user_id)
+        db.add(db_post)
+        db.commit()
+        db.refresh(db_post)
+        db_post = db.query(models.Content).options(joinedload(models.Content.users)).filter(models.Content.id == db_post.id).one()
+        return db_post
     except Exception as e:
         db.rollback()
         raise e

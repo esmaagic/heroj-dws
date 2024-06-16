@@ -26,7 +26,7 @@ import LogoutButton from './LogoutButton';
 export default function NavBar() {
 
   const pathname = usePathname()
-  const canRender = pathname !=='/login' && pathname !=='/register' ? true : false
+  const canRender = pathname !=='/login' && pathname !=='/register' && pathname !=='/' ? true : false
 
   const [user, setUser] = useState<User | null>(null);
   
@@ -37,7 +37,7 @@ export default function NavBar() {
         const userData = await getCurrentUser(token);
         setUser(userData);
       } catch (error) {
-        console.error('Error fetching current user:', error);
+        
       }
     };
 

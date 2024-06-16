@@ -2,13 +2,13 @@ import os
 from fastapi import APIRouter,Depends, File, HTTPException, UploadFile
 #from database import SessionLocal
 import schemas 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from database import get_db
 import models
 from routers.auth import get_current_user
 import crud.contents as crud
 from uuid import uuid4
-
+from sqlalchemy import or_
 router = APIRouter(tags =['contents'])
 
 
@@ -25,38 +25,105 @@ ako nije logovan dobit cete odgovarajuci error response
 pogledaj dummy rutu
 """
 
+DEFAULT_MEDIA_URL = "default-cover.jpg"  
+
+
+
+def get_first_media_url(content_id: int, db: Session):
+    # Query to get the first media URL for the given content ID
+    media = db.query(models.Media).join(models.Section).filter(models.Section.content_id == content_id).first()
+    return media.media_url if media else DEFAULT_MEDIA_URL
+
+
+
+
 @router.get("/contents/{content_id}", response_model=schemas.Content)
 def read_post(content_id: int, db: Session = Depends(get_db)):
-    content = db.query(models.Content).filter(models.Content.id == content_id).first()
+    content = db.query(models.Content).options(
+        joinedload(models.Content.users),        
+        joinedload(models.Content.sections).joinedload(models.Section.media)
+    ).filter(models.Content.id == content_id).first()
     if not content:
         raise HTTPException(status_code=404, detail="Content not found")
-
     return content
 
 
-@router.get("/contents/")
-def read_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    posts = crud.get_posts(db, skip=skip, limit=limit)
 
+@router.get("/contents/")
+def read_posts(db: Session = Depends(get_db)):
+    posts = db.query(models.Content).options(
+        joinedload(models.Content.users),        
+        joinedload(models.Content.sections)     
+    ).all()
+    for post in posts:
+        post.media_url = get_first_media_url(post.id,db)
     return posts
+
+
+""" @router.get("/contents/search/{key_word}")
+def read_posts(key_word:str, db: Session = Depends(get_db)):
+    posts = db.query(models.Content).options(
+        joinedload(models.Content.users),        
+        joinedload(models.Content.sections)     
+    ).filter(models.Content.title.ilike(f"%{key_word}%")).all()
+    for post in posts:
+        post.media_url = get_first_media_url(post.id,db)
+    return posts
+ """
+
+
+@router.get("/contents/search/{key_word}")
+def read_posts(key_word: str, db: Session = Depends(get_db)):
+    # Split the keyword into individual words
+    search_words = key_word.split()
+
+    # Construct the OR condition
+    or_conditions = [models.Content.title.ilike(f"%{word}%") for word in search_words]
+
+    # Query the database with the OR condition
+    posts = db.query(models.Content).options(
+        joinedload(models.Content.users),
+        joinedload(models.Content.sections)
+    ).filter(or_(*or_conditions)).all()
+
+    # Add media_url to the posts
+    for post in posts:
+        post.media_url = get_first_media_url(post.id, db)
+    
+    return posts
+
+
+@router.get("/contents/me/{user_id}")
+def read_contents(user_id:int, db: Session = Depends(get_db)):
+    posts = db.query(models.Content).options(
+        joinedload(models.Content.users),        
+        joinedload(models.Content.sections)     
+    ).filter(models.Content.user_id == user_id).all()
+    for post in posts:
+        post.media_url = get_first_media_url(post.id,db)
+    return posts 
+
+
+
 
 @router.post("/contents/", response_model=schemas.Content)
 def create_post(post: schemas.ContentCreate, db: Session = Depends(get_db)):
     return crud.create_post(db=db, post=post)
 
 
-@router.post("/section/", response_model=schemas.Section)
-def create_section(content_id: int, section: schemas.SectionCreate, db: Session = Depends(get_db)):
-    return crud.create_section(db=db, section=section, content_id = content_id)
+@router.post("/contents/section/", response_model=schemas.Section)
+def create_section(section: schemas.SectionCreate, db: Session = Depends(get_db)):
+    return crud.create_section(db=db, section=section)
 
 
 
-@router.post("/upload/", response_model=schemas.Media)
-async def upload_file(name: str, section_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+@router.post("/contents/media/{section_id}", response_model=schemas.Media)
+async def upload_file(section_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
     file_extension = os.path.splitext(file.filename)[1]
     file_name = f"{uuid4()}{file_extension}"
     file_path = os.path.join(UPLOAD_DIR, file_name)
-    media_url = f"/{UPLOAD_DIR}/{file_name}"
+    media_url = f"{file_name}"
+
 
     # Save the file to the file system
     with open(file_path, "wb") as buffer:
@@ -64,7 +131,7 @@ async def upload_file(name: str, section_id: int, file: UploadFile = File(...), 
 
     try:
         # Attempt to create the media entry in the database
-        media = crud.create_media(db=db, section_id=section_id, media_url=media_url, name=name)
+        media = crud.create_media(db=db, section_id=section_id, media_url=media_url, name="none")
     except Exception as e:
         # If there is an error, delete the saved file and raise an HTTP exception
         if os.path.exists(file_path):
@@ -77,8 +144,20 @@ async def upload_file(name: str, section_id: int, file: UploadFile = File(...), 
 
 
 
+@router.delete("/contents/{content_id}", response_model=dict)
+def delete_content(content_id: int, db: Session = Depends(get_db)):
+    # Fetch the content from the database
+    content = db.query(models.Content).filter(models.Content.id == content_id).first()
 
+    # Check if the content exists
+    if not content:
+        raise HTTPException(status_code=404, detail="Content not found")
 
+    # Delete the content, sections, and media
+    db.delete(content)
+    db.commit()
+
+    return {"message": "Content deleted successfully"}
 
 
 

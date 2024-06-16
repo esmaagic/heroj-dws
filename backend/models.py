@@ -12,6 +12,7 @@ class Media(Base):
     name = Column(String, nullable=False)
     section_id = Column(Integer, ForeignKey('sections.id'))
     media_url = Column(String)
+    sections = relationship('Section', back_populates='media')
 
 
 class Section(Base):
@@ -22,7 +23,7 @@ class Section(Base):
     paragraph = Column(Text)
     content_id = Column(Integer, ForeignKey('contents.id'))
     media = relationship('Media', back_populates='sections')
-    content = relationship('Content', back_populates='sections')
+    contents = relationship('Content', back_populates='sections')
 
 class Content(Base):
     __tablename__ = "contents"
@@ -31,7 +32,7 @@ class Content(Base):
     title = Column(String, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    user = relationship('User')
+    users = relationship('User', back_populates='contents')
     sections = relationship('Section', back_populates='contents', cascade="all, delete-orphan")
 
 class Role(Base):
@@ -48,8 +49,10 @@ class User(Base):
     lastname = Column(String, nullable=False)
     password = Column(String, nullable=False)
     email = Column(String, nullable=False)
+    active = Column(Boolean, nullable=False)
     role_id = Column(Integer, ForeignKey("roles.id", ondelete="CASCADE"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    contents = relationship('Content', back_populates='users')
 
 
 #Muhamed Aletic

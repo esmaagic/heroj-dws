@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from fastapi import UploadFile
 from datetime import datetime
 #Muhamed Aletic
 #Needed for late bainding
@@ -23,10 +24,17 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
+    active: bool
 
     class Config:
         from_attributes = True
 
+class FileUpload(BaseModel):
+    section_id: str
+    file: UploadFile | None
+
+    class Config:
+            from_attributes = True
 #----------content start
 
 
@@ -46,14 +54,15 @@ class Media(MediaBase):
 
 class SectionBase(BaseModel):
     title: str = None
-    content: str = None
+    paragraph: str = None
+    content_id: int
 
 class SectionCreate(SectionBase):
     pass
 
 class Section(SectionBase):
     id: int
-    media: Media
+    media: list[Media]
 
     class Config:
         orm_mode = True
@@ -68,7 +77,9 @@ class ContentCreate(ContentBase):
 class Content(ContentBase):
     id: int
     created_at: datetime
-
+    sections: list[Section] = []
+    users: User
+    media_url: str | None = None
     class Config:
         orm_mode = True
 
