@@ -20,7 +20,8 @@ export default function ChatDialog() {
     return (
       <div>
           <Button variant="contained" color="primary" onClick={handleClickOpen}>
-              Open Chat
+              Chat 
+
           </Button>
           <Dialog
               open={open}

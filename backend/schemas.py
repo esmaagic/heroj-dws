@@ -1,6 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
 
+
 #Muhamed Aletic
 #Needed for late bainding
 from typing import ForwardRef, Optional
@@ -24,20 +25,70 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
+    active: bool
 
     class Config:
         from_attributes = True
 
+class FileUpload(BaseModel):
+    section_id: str
+    file: UploadFile | None
+
+    class Config:
+            from_attributes = True
+#----------content start
+
+
+class MediaBase(BaseModel):
+    name: str
+    media_url: str
+    section_id: int
+
+class MediaCreate(MediaBase):
+    pass
+
+class Media(MediaBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+class SectionBase(BaseModel):
+    title: str = None
+    paragraph: str = None
+    content_id: int
+
+class SectionCreate(SectionBase):
+    pass
+
+class Section(SectionBase):
+    id: int
+    media: list[Media]
+
+    class Config:
+        orm_mode = True
 
 class ContentBase(BaseModel):
     title: str
+    user_id: int
+
+class ContentCreate(ContentBase):
+    pass
 
 class Content(ContentBase):
     id: int
-    type_id: int
-    content: str
+    created_at: datetime
+    sections: list[Section] = []
+    users: User
+    media_url: str | None = None
     class Config:
-        from_attributes = True
+        orm_mode = True
+
+
+
+#------content end----------------
+
+
 
 
 #Muhamed Aletic
