@@ -30,12 +30,7 @@ class User(UserBase):
     class Config:
         from_attributes = True
 
-class FileUpload(BaseModel):
-    section_id: str
-    file: UploadFile | None
 
-    class Config:
-            from_attributes = True
 #----------content start
 
 
