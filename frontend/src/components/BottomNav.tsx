@@ -62,7 +62,6 @@ export default function NavBar() {
             >
 
               <BottomNavigationAction href='/home' label="Pocetna" value="home" icon={<HomeIcon />} />
-              <BottomNavigationAction href='/' label="Pocetna" value="home" icon={<HomeIcon />} />
               <BottomNavigationAction href ='/qna' label="Q&A" value="Q&A" icon={<HelpOutlineIcon />} />
               <BottomNavigationAction href='/quiz' label="Kviz" value="quiz" icon={<QuizIcon />} />
               <BottomNavigationAction href='/forum' label="Forum" value="forum" icon={<ForumIcon />} />

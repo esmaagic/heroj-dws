@@ -1,15 +1,15 @@
 'use client'
-
-import React from 'react';
+import { Box, Link } from "@mui/material";
 import './LandingPage.css';
 
 const LandingPage = () => {
   return (
+    <>
     <div className="landing-container">
       <header className="landing-header">
         <h1 className="landing-title">Welcome to First Aid</h1>
         <p className="landing-subtitle">Your guide to providing emergency medical care</p>
-        <button className="landing-button">Find out more</button>
+        <button className="landing-button"><a href="/home">Find out more</a></button>
       </header>
       <section className="landing-content">
         <div className="landing-feature">
@@ -26,6 +26,7 @@ const LandingPage = () => {
         </div>
       </section>
     </div>
+    </>
   );
 }
 
