@@ -12,13 +12,9 @@
 # Shortcut for installing all required packages in FastAPI project -> pip install pydantic sqlalchemy "python-jose[cryptography]" "passlib[bcrypt]" openai python-dotenv psycopg2 requests
 
 from fastapi import FastAPI
+from routers import contents, auth, ai, quiz, forum, maps, quizai,users, generate
 
-<<<<<<< HEAD
-from routers import contents, auth, ai, quiz, forum, maps, generate
-=======
 
-from routers import contents, auth, ai, quiz, forum, maps, quizai,users
->>>>>>> d8f53cd563f49a70c6bc1841ffe67f31b43d3974
 import models
 from database import engine 
 from fastapi.middleware.cors import CORSMiddleware
@@ -53,11 +49,8 @@ app.include_router(quiz.router)
 app.include_router(quizai.router)
 app.include_router(forum.router)
 app.include_router(maps.router)
-<<<<<<< HEAD
 app.include_router(generate.router)
-=======
 app.include_router(users.router)
->>>>>>> d8f53cd563f49a70c6bc1841ffe67f31b43d3974
 
 
 @app.get("/")
