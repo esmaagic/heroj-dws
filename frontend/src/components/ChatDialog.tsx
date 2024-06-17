@@ -19,8 +19,9 @@ export default function ChatDialog() {
 
     return (
       <div>
-          <Button variant="contained" sx={{backgroundColor:'secondary.main', color:"primary.main"}}  onClick={handleClickOpen}>
-              Open Chat
+          <Button variant="contained" color="primary" onClick={handleClickOpen}>
+              Chat 
+
           </Button>
           <Dialog
               open={open}
