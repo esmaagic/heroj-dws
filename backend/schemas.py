@@ -1,5 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
+
+
 #Muhamed Aletic
 #Needed for late bainding
 from typing import ForwardRef, Optional
@@ -23,20 +25,70 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
+    active: bool
 
     class Config:
         from_attributes = True
 
+class FileUpload(BaseModel):
+    section_id: str
+    file: UploadFile | None
+
+    class Config:
+            from_attributes = True
+#----------content start
+
+
+class MediaBase(BaseModel):
+    name: str
+    media_url: str
+    section_id: int
+
+class MediaCreate(MediaBase):
+    pass
+
+class Media(MediaBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+class SectionBase(BaseModel):
+    title: str = None
+    paragraph: str = None
+    content_id: int
+
+class SectionCreate(SectionBase):
+    pass
+
+class Section(SectionBase):
+    id: int
+    media: list[Media]
+
+    class Config:
+        orm_mode = True
 
 class ContentBase(BaseModel):
     title: str
+    user_id: int
+
+class ContentCreate(ContentBase):
+    pass
 
 class Content(ContentBase):
     id: int
-    type_id: int
-    content: str
+    created_at: datetime
+    sections: list[Section] = []
+    users: User
+    media_url: str | None = None
     class Config:
-        from_attributes = True
+        orm_mode = True
+
+
+
+#------content end----------------
+
+
 
 
 #Muhamed Aletic
@@ -47,6 +99,7 @@ class QuizBase(BaseModel):
 
 class QuizCreate(QuizBase):
     owner_id: int
+    category_id: int
 
 
 question_ref = ForwardRef("Question")
@@ -58,38 +111,99 @@ class Quiz(QuizBase):
     class Config:
         from_attributes = True
 
-#Question
+#QuizCategory
+class QuizCategoryBase(BaseModel):
+    category_title: str
+
+class QuizCategoryCreate(QuizCategoryBase):
+    pass
+
+class QuizCategory(QuizCategoryBase):
+    category_id: int
+    category_title: str
+    class Config:
+        from_attributes = True
+
+# Chat.gpt schemas for question and answer needed for update.
+class AnswerBase(BaseModel):
+    answer: str
+
+class AnswerCreate(AnswerBase):
+    status: bool
+    question_id: int = None
+
 class QuestionBase(BaseModel):
     question: str
 
 class QuestionCreate(QuestionBase):
     quiz_id: int
 
-answer_ref = ForwardRef("Answer")
 class Question(QuestionBase):
     question_id: int
     quiz_id: int
-    answers: list[answer_ref] = []
+    answers: list[AnswerBase] = []
+
     class Config:
         from_attributes = True
-
-#Answer
-class AnswerBase(BaseModel):
-    answer: str
-
-class AnswerCreate(AnswerBase):
-    status: bool
-    question_id: int
 
 class Answer(AnswerBase):
     answer_id: int
     question_id: int
-    answer: str
     status: bool
 
     class Config:
         from_attributes = True
 
+# Update schema for question and answers
+class AnswerUpdate(BaseModel):
+    answer_id: int
+    answer: str
+    status: bool
+
+class QuestionUpdate(BaseModel):
+    question_id: int
+    question: str
+    answers: list[AnswerUpdate]
+
+#Question and answer create together.
+class QuestionAndAnswerCreate(QuestionBase):
+    quiz_id: int
+    question: str
+    answers: list[AnswerCreate]
+
+#Create quiz, questions and answers together.
+class QuestionCreateAll(BaseModel):
+    question: str
+    answers: list[AnswerCreate]
+
+class QuizCreateAll(BaseModel):
+    owner_id: int
+    category_id: int
+    title: str
+    questions: list[QuestionCreateAll]
+
+#Quiz results
+class QuizResultBase(BaseModel):
+    user_id: int
+    quiz_id: int
+    title: str
+    date: datetime
+    correct_answers: int
+    number_of_questions: int
+
+class QuizResultCreate(QuizResultBase):
+    pass
+
+class QuizResult(QuizResultBase):
+    result_id: int
+
+    class Config:
+        from_attributes = True
+
+class QuizRequest(BaseModel):
+    title: str
+    owner_id: int
+    category_id: int
 
 #Sarah Hodzic
 #Schemas for creating and returning posts and comments on said posts

@@ -1,23 +1,41 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, func
+
+from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text, func
+
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
+#obrisi content_type 
 
-class ContentType(Base):
-    __tablename__ = "content_types"
-
+class Media(Base):
+    __tablename__ = "media"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
+    section_id = Column(Integer, ForeignKey('sections.id'))
+    media_url = Column(String)
+    sections = relationship('Section', back_populates='media')
+
+
+class Section(Base):
+    __tablename__ = "sections"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+    paragraph = Column(Text)
+    content_id = Column(Integer, ForeignKey('contents.id'))
+    media = relationship('Media', back_populates='sections')
+    contents = relationship('Content', back_populates='sections')
 
 class Content(Base):
     __tablename__ = "contents"
 
     id = Column(Integer, primary_key=True, index=True)
-    type_id = Column(Integer, ForeignKey("content_types.id", ondelete="CASCADE"), nullable=False)
     title = Column(String, nullable=False)
-    content = Column(Text, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    users = relationship('User', back_populates='contents')
+    sections = relationship('Section', back_populates='contents', cascade="all, delete-orphan")
 
 class Role(Base):
     __tablename__ = "roles"
@@ -33,12 +51,19 @@ class User(Base):
     lastname = Column(String, nullable=False)
     password = Column(String, nullable=False)
     email = Column(String, nullable=False)
+    active = Column(Boolean, nullable=False)
     role_id = Column(Integer, ForeignKey("roles.id", ondelete="CASCADE"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    contents = relationship('Content', back_populates='users')
+
 
     posts = relationship("Post", back_populates="users")
     comments = relationship("Comment", back_populates="users")
     posts_qna = relationship("PostQnA", back_populates="users")
     comments_qna = relationship("CommentQnA", back_populates="users")
+
+    # Muhamed Aletic
+    quiz_results = relationship('QuizResult', back_populates='user')
 
 #Muhamed Aletic
 #Table needed for quiz realisation
@@ -48,8 +73,19 @@ class Quiz(Base):
     quiz_id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    category_id = Column(Integer, ForeignKey("category.category_id", ondelete="CASCADE"), nullable=False) 
     
     questions = relationship("Question", back_populates="quiz")
+    category = relationship("Category", back_populates="quizzes")
+    quiz_results = relationship('QuizResult', back_populates='quiz')
+
+class Category(Base):
+    __tablename__ = "category"
+
+    category_id = Column(Integer, primary_key=True, index=True)
+    category_title = Column(Text, nullable=False )
+
+    quizzes = relationship("Quiz", back_populates="category")
 
 class Question(Base):
     __tablename__ = "questions"
@@ -71,6 +107,19 @@ class Answer(Base):
 
     question = relationship('Question', back_populates="answers")
  
+
+class QuizResult(Base):
+    __tablename__ = 'quiz_results'
+    result_id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    quiz_id = Column(Integer, ForeignKey('quizes.quiz_id', ondelete="CASCADE"), nullable=False)
+    title = Column(String, nullable=False)
+    date = Column(Date, nullable=False)
+    correct_answers = Column(Integer, nullable=False)
+    number_of_questions = Column(Integer, nullable=False)
+
+    user = relationship('User', back_populates='quiz_results')
+    quiz = relationship('Quiz', back_populates='quiz_results')
 
  #Sarah Hodzic
  #Tables for Forum

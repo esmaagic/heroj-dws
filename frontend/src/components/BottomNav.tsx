@@ -1,8 +1,8 @@
 "use client"
 import * as React from 'react';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import {Paper, Dialog, DialogContent } from '@mui/material';
-
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import ForumIcon from '@mui/icons-material/Forum';
@@ -13,11 +13,12 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { usePathname } from 'next/navigation'
 import MapIcon from '@mui/icons-material/Map';
 import MapContainer from '../components/Map';
+import { getCurrentUser, User } from '@/services/getCurrentUser';
 
 export default function NavBar() {
   const [value, setValue] = useState('home');
   const pathname = usePathname()
-  const canRender = pathname !=='/login' && pathname !=='/register' ? true : false
+  const canRender = pathname !=='/login' && pathname !=='/register' && pathname !=='/' ? true : false
   const [openMap, setOpenMap] = useState(false);
 
   const handleMapClick = () => {
@@ -27,7 +28,25 @@ export default function NavBar() {
   const handleCloseMap = () => {
     setOpenMap(false);
   };
+ 
 
+
+
+  const [user, setUser] = useState<User | null>(null);
+  
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem('token'); // Assuming token is stored in localStorage
+        const userData = await getCurrentUser(token);
+        setUser(userData);
+      } catch (error) {
+        
+      }
+    };
+
+    fetchUser();
+  }, [pathname]);
 
   return (
     <>
@@ -41,11 +60,20 @@ export default function NavBar() {
                 setValue(newValue);
               }}
             >
+
+              <BottomNavigationAction href='/home' label="Pocetna" value="home" icon={<HomeIcon />} />
               <BottomNavigationAction href='/' label="Pocetna" value="home" icon={<HomeIcon />} />
-              <BottomNavigationAction label="Kviz" value="quiz" icon={<QuizIcon />} />
-              <BottomNavigationAction href ='/forum' label="Forum" value="forum" icon={<ForumIcon />} />
               <BottomNavigationAction href ='/qna' label="Q&A" value="Q&A" icon={<HelpOutlineIcon />} />
+              <BottomNavigationAction href='/quiz' label="Kviz" value="quiz" icon={<QuizIcon />} />
+              <BottomNavigationAction href='/forum' label="Forum" value="forum" icon={<ForumIcon />} />
               <BottomNavigationAction label="Map" value="map" icon={<MapIcon />} onClick={handleMapClick} />
+   
+              {user?.role_id == 3  && (
+                <BottomNavigationAction href='/admin-panel' label="Admin" value="admin" icon={<AdminPanelSettingsIcon />} />
+              )}
+              {user?.role_id == 2  && (
+                <BottomNavigationAction href='/doctor-panel' label="Doctor" value="doctor" icon={<AdminPanelSettingsIcon />} />
+              )}
             </BottomNavigation>
           </Paper>
           <Dialog open={openMap} onClose={handleCloseMap}>

@@ -1,4 +1,3 @@
-'use client'
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Button, Container, Paper, Grid, TextField, InputAdornment, IconButton, Typography, CircularProgress } from '@mui/material';
@@ -9,7 +8,7 @@ interface ChatProps {
 }
 
 export default function Chat({ setShowChat }: ChatProps) {
-    const [messages, setMessages] = useState<{ type: string; content: string; sender: string }[]>([]);
+    const [messages, setMessages] = useState<string[]>([]);
     const [message, setMessage] = useState<string>('');
     const [file, setFile] = useState<File | null>(null);
     const [fileURL, setFileURL] = useState<string | null>(null);
@@ -17,13 +16,15 @@ export default function Chat({ setShowChat }: ChatProps) {
 
     const handleSendMessage = async () => {
         if (message.trim() || file) {
+            const query = message.trim() || 'What is in this image?'; // Use hardcoded question if message is empty
             if (message.trim()) {
-                setMessages([...messages, { type: 'text', content: `User: ${message}`, sender: 'User' }]);
-                setMessage('');
+                setMessages([...messages, `User: ${message}`]);
             }
+
             if (file) {
                 const formData = new FormData();
                 formData.append('file', file);
+                formData.append('query', query);
                 setLoading(true);
 
                 try {
@@ -32,10 +33,13 @@ export default function Chat({ setShowChat }: ChatProps) {
                             'Content-Type': 'multipart/form-data'
                         }
                     });
-                    setMessages((prevMessages) => [...prevMessages, { type: 'text', content: `AI: ${res.data}`, sender: 'AI' }]);
+
+                    setMessages(prevMessages => [...prevMessages, `AI: ${res.data}`]);
+
                 } catch (error) {
                     console.error('Error:', error);
-                    setMessages((prevMessages) => [...prevMessages, { type: 'text', content: 'AI: Error analyzing image.', sender: 'AI' }]);
+                    setMessages(prevMessages => [...prevMessages, 'AI: Error analyzing image.']);
+
                 } finally {
                     setLoading(false);
                     if (fileURL) {
@@ -44,7 +48,23 @@ export default function Chat({ setShowChat }: ChatProps) {
                     setFile(null);
                     setFileURL(null);
                 }
+            } else {
+                try {
+                    const res = await axios.post('http://localhost:8000/first-aid/search', { query });
+
+                    if (res.data && res.data.response) {
+                        setMessages(prevMessages => [...prevMessages, `AI: ${res.data.response}`]);
+                    } else {
+                        console.error('Unexpected response format:', res.data);
+                    }
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    setMessages(prevMessages => [...prevMessages, 'AI: Error fetching response.']);
+                }
             }
+
+            setMessage('');
         }
     };
 
@@ -58,7 +78,7 @@ export default function Chat({ setShowChat }: ChatProps) {
             setFile(selectedFile);
             const previewURL = URL.createObjectURL(selectedFile);
             setFileURL(previewURL);
-            setMessages((prevMessages) => [...prevMessages, { type: 'image', content: previewURL, sender: 'User' }]);
+            setMessages(prevMessages => [...prevMessages, `User uploaded an image: ${previewURL}`]);
         } else {
             setFile(null);
             setFileURL(null);
@@ -67,11 +87,10 @@ export default function Chat({ setShowChat }: ChatProps) {
 
     return (
         <Container maxWidth="md" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-
             <Paper elevation={24} square={false} style={{ flexGrow: 1, padding: '16px', overflowY: 'auto', borderRadius: '8px', backgroundColor: '#ffffff', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', scrollbarWidth: 'thin', scrollbarColor: '#d3d3d3 transparent' }}>
                 {messages.map((msg, index) => (
                     <Typography key={index} style={{ margin: '10px 0' }}>
-                        {msg.type === 'text' ? msg.content : <img src={msg.content} alt="Uploaded" style={{ maxWidth: '100%' }} />}
+                        {msg.startsWith('User uploaded an image:') ? <img src={msg.split(': ')[1]} alt="Uploaded" style={{ maxWidth: '100%' }} /> : msg}
                     </Typography>
                 ))}
             </Paper>
@@ -125,4 +144,4 @@ export default function Chat({ setShowChat }: ChatProps) {
             </Grid>
         </Container>
     );
-};
+}

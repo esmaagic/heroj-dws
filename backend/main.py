@@ -9,11 +9,10 @@
 #pip install python-dotenv
 
 # Muhamed Aletic
-# Shortcut for installing all required packages in FastAPI project -> pip install pydantic sqlalchemy "python-jose[cryptography]" "passlib[bcrypt]" openai python-dotenv psycopg2
+# Shortcut for installing all required packages in FastAPI project -> pip install pydantic sqlalchemy "python-jose[cryptography]" "passlib[bcrypt]" openai python-dotenv psycopg2 requests
 
 from fastapi import FastAPI
-
-from routers import contents, auth, ai, quiz, forum, maps, qna
+from routers import contents, auth, ai, quiz, forum, maps, quizai,users, generate,qna
 import models
 from database import engine 
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,9 +44,12 @@ app.include_router(contents.router)
 app.include_router(auth.router)
 app.include_router(ai.router)
 app.include_router(quiz.router)
+app.include_router(quizai.router)
 app.include_router(forum.router)
 app.include_router(maps.router)
 app.include_router(qna.router)
+app.include_router(generate.router)
+app.include_router(users.router)
 
 
 @app.get("/")

@@ -31,9 +31,13 @@ export default function App() {
         },
       });
       localStorage.setItem('token', response.data.access_token);
-      router.push('/');
+      router.push('/home');
     } catch (error) {
-      setLoginError('Invalid email or password');
+      if (error.response && error.response.status === 405) {
+        setLoginError('Server error: Method Not Allowed');
+      } else {
+        setLoginError('Invalid email or password');
+      }
     }
   };
 
