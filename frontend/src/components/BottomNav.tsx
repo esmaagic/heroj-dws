@@ -8,6 +8,7 @@ import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import ForumIcon from '@mui/icons-material/Forum';
 import QuizIcon from '@mui/icons-material/Quiz';
 import HomeIcon from '@mui/icons-material/Home';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { usePathname } from 'next/navigation'
 import MapIcon from '@mui/icons-material/Map';
@@ -42,8 +43,8 @@ export default function NavBar() {
             >
               <BottomNavigationAction href='/' label="Pocetna" value="home" icon={<HomeIcon />} />
               <BottomNavigationAction label="Kviz" value="quiz" icon={<QuizIcon />} />
-              <BottomNavigationAction label="Forum" value="forum" icon={<ForumIcon />} />
-              <BottomNavigationAction label="Racun" value="account" icon={<AccountCircleIcon />} />
+              <BottomNavigationAction href ='/forum' label="Forum" value="forum" icon={<ForumIcon />} />
+              <BottomNavigationAction href ='/qna' label="Q&A" value="Q&A" icon={<HelpOutlineIcon />} />
               <BottomNavigationAction label="Map" value="map" icon={<MapIcon />} onClick={handleMapClick} />
             </BottomNavigation>
           </Paper>

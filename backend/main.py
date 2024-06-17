@@ -13,7 +13,7 @@
 
 from fastapi import FastAPI
 
-from routers import contents, auth, ai, quiz, forum, maps
+from routers import contents, auth, ai, quiz, forum, maps, qna
 import models
 from database import engine 
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,6 +47,7 @@ app.include_router(ai.router)
 app.include_router(quiz.router)
 app.include_router(forum.router)
 app.include_router(maps.router)
+app.include_router(qna.router)
 
 
 @app.get("/")

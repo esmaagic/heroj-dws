@@ -1,11 +1,8 @@
-
-
 import { Button } from "@mui/material";
 import axios from "axios";
+import { useEffect, useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form"
 import { text } from "stream/consumers";
-
-
 
 interface ReplyFormInputs {
     comment: string;
@@ -15,28 +12,35 @@ interface PostInfo {
     post_id: number,
     user_id: number,
     getAllComments: any
+    qna: boolean
 }
     
-
-
-export default function CommentForm({post_id, user_id, getAllComments}: PostInfo) {
+export default function CommentForm({post_id, user_id, getAllComments, qna}: PostInfo) {
   const {
     register,
     handleSubmit,
     watch,
     reset,
+    setValue,
     formState: { errors },
     setError,
   } = useForm<ReplyFormInputs>()
 
+  const [textareaValue, setTextareaValue] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
 
   const onSubmit: SubmitHandler<ReplyFormInputs> = async (data) => {
     try {
-        const response = await axios.post("http://localhost:8000/comments/", {comment: data.comment, user_id: user_id, post_id: post_id})
+       let url = "http://localhost:8000/comments/"
+       if(qna){
+        url = "http://localhost:8000/commentsqna/"
+       }
+        const response = await axios.post(url, {comment: data.comment, user_id: user_id, post_id: post_id})
         console.log(response.data)
         reset()
         getAllComments(post_id)
-        
+        setTextareaValue('');   
     }
     catch(error){
         setError("root", {
@@ -45,18 +49,33 @@ export default function CommentForm({post_id, user_id, getAllComments}: PostInfo
     }
   }
 
+  const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = event.target.value;
+    setTextareaValue(value);
+    setValue("comment", value);
+    
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'; // Reset height
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; // Set to scrollHeight
+    }
+  };
 
-  console.log(watch("comment")) // watch input value by passing the name of it
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'; // Reset height
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; // Set to scrollHeight
+    }
+  }, [textareaValue]);
 
-
+  
   return (
-    /* "handleSubmit" will validate your inputs before invoking "onSubmit" */
     <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column' }}>
-      {/* register your input into the hook by invoking the "register" function */}
       <textarea {...register("comment", {required: true})}
+        value={textareaValue}
+        onChange={handleInput}
         placeholder="Add a reply..."
-        rows={1} // Define number of visible text lines
-        cols={50} // Define width of the textarea in characters 
+        rows={1} 
+        ref={textareaRef}
         style={{ 
             minHeight: '3em', 
             resize: 'none', 
@@ -67,8 +86,7 @@ export default function CommentForm({post_id, user_id, getAllComments}: PostInfo
             padding: '10px'
          }}
       />
-      {/* errors will return when field validation fails  */}
-      {errors.comment && <span>This field is required</span>}
+      {errors.comment && <span style={{color: "red", marginLeft: "10px"}}>*This field is required</span>}
 
       <Button variant= "outlined" type="submit" 
         sx={{

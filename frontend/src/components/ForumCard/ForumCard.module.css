@@ -11,7 +11,7 @@
           text-justify: inter-word;
 }
 
-.expanded {
+.expanded1 {
     -webkit-line-clamp: unset;
     overflow: visible;
     max-height: none;

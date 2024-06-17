@@ -112,6 +112,9 @@ class PostCreate(BaseModel):
     title: str = Field(..., description="Post title", min_length= 1)
     post: str = Field(..., description="Post content", min_length= 1)
 
+class PostEdit(PostBase):
+    id: int
+
 #Likes
 
 class Like(BaseModel):
@@ -135,6 +138,60 @@ class Comment(CommentBase):
         from_attribues = True
 
 class CommentCreate(BaseModel):
+    comment: str = Field(..., description="Comment ", min_length= 1)
+    user_id: int
+    post_id: int
+
+
+#Schemas for creating and returning posts and comments on said posts for QnA
+
+class PostBaseQnA(BaseModel):
+    post:str
+    title: str
+
+class PostQnA(PostBaseQnA):
+    id: int
+    user_id: int
+    likes: int
+    created_at: datetime
+    users: Optional[UserBase]
+    class Config:
+        from_attributes = True
+
+class PostCreateQnA(BaseModel):
+    user_id: int
+    title: str = Field(..., description="Post title", min_length= 1)
+    post: str = Field(..., description="Post content", min_length= 1)
+
+class PostEditQnA(PostBaseQnA):
+    id: int
+
+#Likes QnA
+
+class LikeQnA(BaseModel):
+    user_id: int
+    post_id: int
+    
+
+#Comments QnA
+
+class CommentBaseQnA(BaseModel):
+    comment: str
+
+class CommentEditQnA(CommentBaseQnA):
+    id: int
+
+class CommentQnA(CommentBaseQnA):
+    id: int
+    post_id: int
+    user_id: int
+    likes: int
+    created_at: datetime
+    users: Optional[UserBase]
+    class Config:
+        from_attributes = True  
+
+class CommentCreateQnA(BaseModel):
     comment: str = Field(..., description="Comment ", min_length= 1)
     user_id: int
     post_id: int

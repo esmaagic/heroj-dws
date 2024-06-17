@@ -1,10 +1,12 @@
 import logging
 from typing import Optional
-from fastapi import APIRouter,Depends, HTTPException
+from sqlalchemy import or_
+from fastapi import APIRouter,Depends, HTTPException, Query
 import schemas 
 from sqlalchemy.orm import Session, joinedload
 from database import get_db
 import models
+
 
 router = APIRouter(tags =['forum'])
 
@@ -16,6 +18,47 @@ async def get_all_posts(db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="There are no posts created")
  return posts
 
+#get all posts with criteria
+@router.get("/posts/criterion/{criterion}", response_model=list[schemas.Post])
+async def get_all_posts(criterion: int, db: Session = Depends(get_db)):
+ if(criterion == 1):
+    print("Sorting by latest")
+    posts = db.query(models.Post).options(joinedload(models.Post.users)).order_by(models.Post.created_at.desc()).all()
+ elif(criterion == 2):
+    print("Sorting by oldest")
+    posts = db.query(models.Post).options(joinedload(models.Post.users)).order_by(models.Post.created_at.asc()).all()
+ elif(criterion == 3):
+    print("Sorting by most likes")
+    posts = db.query(models.Post).options(joinedload(models.Post.users)).order_by(models.Post.likes.desc()).all()
+ elif(criterion == 4):
+    print("Sorting by least likes")
+    posts = db.query(models.Post).options(joinedload(models.Post.users)).order_by(models.Post.likes.asc()).all()
+ if not posts:
+        raise HTTPException(status_code=404, detail="There are no posts created")
+ return posts
+
+#post search query 
+@router.get("/posts/search/{search_terms}", response_model=list[schemas.Post])
+async def search_posts(search_terms: str, db: Session = Depends(get_db)):
+    search_keywords = search_terms.split(",")  # Razdvajanje ključnih riječi
+    print("uslo ovjde")
+    query = db.query(models.Post).options(joinedload(models.Post.users))
+    # Kreiranje dinamičkog filtera za svaku ključnu riječ
+    filters = []
+    for keyword in search_keywords:
+        search_query = f"%{keyword}%"
+        print(search_query)
+        filters.append(
+            (models.Post.title.ilike(search_query)) | (models.Post.post.ilike(search_query))
+        )
+    
+    # Kombinovanje svih filtera koristeći OR operator
+    posts = query.filter(or_(*filters)).all()
+
+    #if not posts:
+     #   raise HTTPException(status_code=404, detail="No posts found matching the search criteria")
+    return posts
+
 #get post by id
 # Dohvat pojedinačnog posta
 @router.get("/posts/{post_id}", response_model=schemas.Post)
@@ -24,6 +67,43 @@ async def get_post_by_id(post_id: int, db: Session = Depends(get_db)):
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     return post
+
+#get posts by user_id
+@router.get("/posts/user/{user_id}", response_model=list[schemas.Post])
+async def get_post_by_user_id(user_id: int, db: Session = Depends(get_db)):
+    print(f"Fetching posts for user_id: {user_id}")
+    post = db.query(models.Post).options(joinedload(models.Post.users)).filter(models.Post.user_id == user_id).all()
+    if not post:
+        print(f"No posts found for user_id: {user_id}")
+        raise HTTPException(status_code=404, detail="Post not found ne znam zasto who knows bruh")
+    print(f"Found posts: {post}")
+    return post
+
+# Post search query by user_id and search terms
+@router.get("/posts/user/{user_id}/{search_terms}", response_model=list[schemas.Post])
+async def search_posts_by_user(user_id: int, search_terms: str, db: Session = Depends(get_db)):
+    search_keywords = search_terms.split(",")  # Split the search terms by comma
+    print(f"Fetching posts for user_id: {user_id} with search terms: {search_terms}")
+    query = db.query(models.Post).options(joinedload(models.Post.users)).filter(models.Post.user_id == user_id)
+    
+    # Create dynamic filters for each keyword
+    filters = []
+    for keyword in search_keywords:
+        search_query = f"%{keyword}%"
+        print(f"Search query: {search_query}")
+        filters.append(
+            (models.Post.title.ilike(search_query)) | (models.Post.post.ilike(search_query))
+        )
+    
+    # Combine all filters using OR operator
+    posts = query.filter(or_(*filters)).all()
+    
+    #if not posts:
+       # print(f"No posts found for user_id: {user_id} with search terms: {search_terms}")
+       # raise HTTPException(status_code=404, detail="No posts found matching the search criteria")
+    
+    print(f"Found posts: {posts}")
+    return posts
 
 #creating a new post
 @router.post("/posts/")
@@ -35,6 +115,29 @@ async def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
  db.commit()
  db.refresh(new_post)
  return new_post
+
+ #deleting a post
+@router.delete("/posts/{post_id}")
+async def post_delete(post_id : int, db: Session = Depends(get_db)):
+ post_to_delete = db.query(models.Post).filter(models.Post.id == post_id).first()
+ if not post_to_delete:
+    raise HTTPException(status_code=404, detail="Post not found")
+ db.delete(post_to_delete)
+ db.commit()
+ return {"detail": "Post deleted successfully"}
+
+#editing a post
+@router.put("/posts/")
+async def post_edit(post_info: schemas.PostEdit, db: Session = Depends(get_db)):
+    post = db.query(models.Post).filter(models.Post.id == post_info.id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    post.title = post_info.title
+    post.post = post_info.post
+    db.commit()
+    db.refresh(post)
+    return post
+
 
 #like increase of a post
 @router.put("/posts/likes/increase/")
