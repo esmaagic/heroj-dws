@@ -190,10 +190,6 @@ const CreateQuizPage = () => {
     setIsQuizModalOpen(true);
   };
 
-  const handleCloseQuizModal = () => {
-    setIsQuizModalOpen(false);
-  };
-
   const handleCreateQuiz = () => {
     if (!newQuizName || !newQuizCategory) {
       setErrorMessage("You must fill in all fields");
@@ -243,6 +239,37 @@ const CreateQuizPage = () => {
     }
   }
 
+  // CHATGPT
+
+  const [openQuizModal, setOpenQuizModal] = useState(false);
+  const [quizTitle, setQuizTitle] = useState('');
+  const [quizCategory, setQuizCategory] = useState('');
+
+  const handleCloseAIGenerateModal = () => {
+    setOpenQuizModal(false)
+    setQuizTitle('')
+    setQuizCategory('')
+  }
+
+  const chatGptGenerateQuiz = async () => {
+    const category_id = categories.find(category => category.category_title === quizCategory)
+    setOpenQuizModal(false);
+
+    try {
+      const responese = await axios.post('http://localhost:8000/generate-chat2', {
+        "title": quizTitle,
+        "owner_id": userData?.id,
+        "category_id": category_id?.category_id
+      })
+      getAllQuizzesFromDatabase()
+      setQuizTitle('')
+      setQuizCategory('')
+
+    } catch (error) {
+      console.log('CHATGPT', error)
+    }
+  };
+
   return (
     <div>
       {loading ? (
@@ -271,7 +298,7 @@ const CreateQuizPage = () => {
                 <Button variant="contained" color="primary" onClick={handleOpenQuizModal}>
                   Create Quiz
                 </Button>
-                <Button variant="contained" color="secondary">
+                <Button variant="contained" color="secondary" onClick={() => setOpenQuizModal(true)}>
                   ChatGPT generation
                 </Button>
                 <Button variant="contained" color="success" onClick={handleOpenCategoryModal}>
@@ -322,9 +349,57 @@ const CreateQuizPage = () => {
                 )}
               </Grid>
             </>
+            <Modal
+              open={openQuizModal}
+              onClose={() => setOpenQuizModal(false)}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: 400,
+                  bgcolor: 'background.paper',
+                  border: '2px solid #000',
+                  boxShadow: 24,
+                  p: 4,
+                }}
+              >
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                  Create Quiz
+                </Typography>
+                <TextField
+                  fullWidth
+                  label="Quiz Title"
+                  value={quizTitle}
+                  onChange={(e) => setQuizTitle(e.target.value)}
+                  margin="normal"
+                />
+                <TextField
+                  select
+                  fullWidth
+                  label="Category"
+                  value={quizCategory}
+                  onChange={(e) => setQuizCategory(e.target.value)}
+                  margin="normal"
+                >
+                  {categories.map((category) => (
+                    <MenuItem key={category.category_id} value={category.category_title}>
+                      {category.category_title}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <Button variant="contained" color="primary" onClick={chatGptGenerateQuiz} sx={{ mt: 2 }}>
+                  Create
+                </Button>
+              </Box>
+            </Modal>
 
             {/* Modal for creating a new category */}
-            
+
             <Modal open={isCategoryModalOpen} onClose={handleCloseCategoryModal}>
               <Box
                 sx={{

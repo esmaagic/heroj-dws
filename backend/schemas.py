@@ -124,39 +124,6 @@ class QuizCategory(QuizCategoryBase):
     class Config:
         from_attributes = True
 
-
-""" #Question
-class QuestionBase(BaseModel):
-    question: str
-
-class QuestionCreate(QuestionBase):
-    quiz_id: int
-
-answer_ref = ForwardRef("Answer")
-class Question(QuestionBase):
-    question_id: int
-    quiz_id: int
-    answers: list[answer_ref] = []
-    class Config:
-        from_attributes = True
-
-#Answer
-class AnswerBase(BaseModel):
-    answer: str
-
-class AnswerCreate(AnswerBase):
-    status: bool
-    question_id: int
-
-class Answer(AnswerBase):
-    answer_id: int
-    question_id: int
-    answer: str
-    status: bool
-
-    class Config:
-        from_attributes = True """
-
 # Chat.gpt schemas for question and answer needed for update.
 class AnswerBase(BaseModel):
     answer: str
@@ -232,6 +199,11 @@ class QuizResult(QuizResultBase):
 
     class Config:
         from_attributes = True
+
+class QuizRequest(BaseModel):
+    title: str
+    owner_id: int
+    category_id: int
 
 #Sarah Hodzic
 #Schemas for creating and returning posts and comments on said posts
