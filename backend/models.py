@@ -1,23 +1,41 @@
+
 from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text, func
+
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
+#obrisi content_type 
 
-class ContentType(Base):
-    __tablename__ = "content_types"
-
+class Media(Base):
+    __tablename__ = "media"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
+    section_id = Column(Integer, ForeignKey('sections.id'))
+    media_url = Column(String)
+    sections = relationship('Section', back_populates='media')
+
+
+class Section(Base):
+    __tablename__ = "sections"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+    paragraph = Column(Text)
+    content_id = Column(Integer, ForeignKey('contents.id'))
+    media = relationship('Media', back_populates='sections')
+    contents = relationship('Content', back_populates='sections')
 
 class Content(Base):
     __tablename__ = "contents"
 
     id = Column(Integer, primary_key=True, index=True)
-    type_id = Column(Integer, ForeignKey("content_types.id", ondelete="CASCADE"), nullable=False)
     title = Column(String, nullable=False)
-    content = Column(Text, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    users = relationship('User', back_populates='contents')
+    sections = relationship('Section', back_populates='contents', cascade="all, delete-orphan")
 
 class Role(Base):
     __tablename__ = "roles"
@@ -33,7 +51,11 @@ class User(Base):
     lastname = Column(String, nullable=False)
     password = Column(String, nullable=False)
     email = Column(String, nullable=False)
+    active = Column(Boolean, nullable=False)
     role_id = Column(Integer, ForeignKey("roles.id", ondelete="CASCADE"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    contents = relationship('Content', back_populates='users')
+
 
     posts = relationship("Post", back_populates="users")
     comments = relationship("Comment", back_populates="users")

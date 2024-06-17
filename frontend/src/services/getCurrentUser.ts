@@ -18,7 +18,6 @@ export async function getCurrentUser(token: string | null): Promise<User | null>
     })
     return response.data;
   } catch (error) {
-    console.error('Error fetching current user:', error);
     return null;
   }
 }
