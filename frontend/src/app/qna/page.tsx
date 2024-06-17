@@ -19,6 +19,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 import SearchIcon from '@mui/icons-material/Search';
 import ReactPaginate from "react-paginate";
 import './style.css';
+import QnaWelcomeDialog from "@/components/QnaWelcomeDialog";
 
 
 interface CurrentUser {
@@ -398,7 +399,7 @@ const Forum = () => {
             </Button>
         </DialogActions>
         </Dialog>
-
+        <QnaWelcomeDialog />
         <LoginDialogForum action={action} open={openDialog} handleClose={handleCloseDialog} handleLogin={handleLogin}></LoginDialogForum>
         
 </>
