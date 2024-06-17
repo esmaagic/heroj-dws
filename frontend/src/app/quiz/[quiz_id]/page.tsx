@@ -6,22 +6,20 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation'
 import { getCurrentUser, User } from '@/services/getCurrentUser';
 import { Box, CircularProgress, Typography } from '@mui/material';
+import { shuffle } from 'lodash';
 
 interface QuizData {
   quiz_id: number;
   title: string;
   questions: string[];
-  // dodajte ostala očekivana svojstva ovdje
 }
 
-
-// Ovo je nacin da se preuzme id sa dinamcike rute koristeci parmas.
 const QuizPage = ({ params }: { params: { quiz_id: number } }) => {
   const router = useRouter()
 
   const [quizData, setQuizData] = useState<QuizData | null>(null)
   const [user, setUser] = useState<User | null>(null);
- 
+  
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -44,8 +42,18 @@ const QuizPage = ({ params }: { params: { quiz_id: number } }) => {
     async function getOneQuizFromDatabase() {
       try {
         const response = await axios.get(`http://localhost:8000/quiz/find-quiz/${params.quiz_id}`);
-        setQuizData(response.data);
-        console.log(response.data)
+        const data = response.data;
+        const updatedQuestions = data.questions.map(question => {
+          return {
+            ...question,
+            answers: shuffle(question.answers)
+          };
+        });
+        setQuizData({
+          ...data,
+          questions: updatedQuestions
+        });
+        
       } catch (error) {
         console.error("Error retrieving a quiz from the database:", error);
       }

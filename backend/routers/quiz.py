@@ -7,6 +7,7 @@ from sqlalchemy.orm import joinedload
 
 from database import get_db
 
+
 # Import this module for transaction error. 
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -28,7 +29,7 @@ async def get_quizzes(user_id: int, db: Session = Depends(get_db)):
     passed_quiz_ids = [pq.quiz_id for pq in passed_quizzes]
 
      # 3. Filtrirati kvizove koje korisnik nije položio
-    available_quizzes = [quiz for quiz in quizzes_not_owned if quiz.quiz_id not in passed_quiz_ids]
+    available_quizzes = [quiz for quiz in quizzes_not_owned if quiz.quiz_id not in passed_quiz_ids and len(quiz.questions) > 0]
     return available_quizzes
     # quizzes = db.query(models.Quiz).all()
     # return quizzes
@@ -45,32 +46,6 @@ async def find_quiz(quiz_id: int, db: Session = Depends(get_db)):
         question.answers = db.query(models.Answer).filter(models.Answer.question_id == question.question_id).all()
     return quiz
 
-# Route for create quiz
-@router.post("/create-quiz")
-async def create_quiz(quiz: schemas.QuizCreate, db: Session = Depends(get_db)):
-    db_quiz = models.Quiz(**quiz.model_dump())
-    db.add(db_quiz)
-    db.commit()
-    db.refresh(db_quiz)
-    return db_quiz
-
-# Route for create question
-@router.post("/create-question")
-async def create_question(question: schemas.QuestionCreate, db: Session = Depends(get_db)):
-    db_question = models.Question(**question.model_dump())
-    db.add(db_question)
-    db.commit()
-    db.refresh(db_question)
-    return db_question
-
-# Route for create answer
-@router.post("/create-answer")
-async def create_answer(answer: schemas.AnswerCreate, db: Session = Depends(get_db)):
-    db_answer = models.Answer(**answer.model_dump())
-    db.add(db_answer)
-    db.commit()
-    db.refresh(db_answer)
-    return db_answer
 
 # Route for creating a category
 @router.post("/quiz/create-category")
@@ -236,26 +211,6 @@ async def delete_quiz(quiz_id: int, db: Session = Depends(get_db)):
         # Rollback the transaction in case of error
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    
-""" @router.post("/quiz/quiz-result/", response_model=schemas.QuizResultCreate)
-async def create_quiz_result(quiz_result: schemas.QuizResultCreate, db: Session = Depends(get_db)):
-    try:
-        # Kreiranje novog zapisa u bazi podataka
-        db_quiz_result = models.QuizResult(
-            quiz_id=quiz_result.quiz_id,
-            title=quiz_result.title,
-            user_id=quiz_result.user_id,
-            number_of_questions=quiz_result.number_of_questions,
-            correct_answers=quiz_result.correct_answers,
-            date=quiz_result.date
-        )
-        db.add(db_quiz_result)
-        db.commit()
-        db.refresh(db_quiz_result)
-        return db_quiz_result
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=str(e)) """
     
 @router.post("/quiz/quiz-result/", response_model=schemas.QuizResultCreate)
 async def create_quiz_result(quiz_result: schemas.QuizResultCreate, db: Session = Depends(get_db)):

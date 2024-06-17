@@ -95,14 +95,7 @@ const ListOfQuiz: React.FC<ListOfQuizProps> = ({ selectedCategory, searchQuery  
         ))}
       </Grid>
       <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 4, marginBottom: '80px' }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={loadMore}
-          disabled={visibleQuizzes >= quizzes.length}
-        >
-          Load More
-        </Button>
+       
       </Box>
     </Container>
   );
